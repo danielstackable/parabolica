@@ -1,0 +1,43 @@
+---
+const provider = {
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050"
+  ],
+  "Provider_addressLocality": "Tsukuba",
+  "_id": "1752922386695x770193636458233900",
+  "Provider_name": "University of Tsukuba",
+  "Location identifier": "Branch",
+  "Provider_url": "https://www.tsukuba.ac.jp/en/",
+  "Provider_MarketingCopy": "An innovation-driven hub of STEMM and global collaboration, set in Japan’s premier science city.",
+  "Provider_logo": "https://upload.wikimedia.org/wikipedia/en/thumb/4/4f/University_of_Tsukuba_emblem.svg/200px-University_of_Tsukuba_emblem.svg.png",
+  "Provider_streetAddress": "1‑1‑1 Tennodai",
+  "Modified Date": "2025-07-19T11:05:37.671Z",
+  "Created By": "1711122671403x176776188326891680",
+  "Provider_description": "University of Tsukuba is a national research university in Tsukuba, Ibaraki, Japan, founded in 1973 (tracing roots to 1872). It hosts around 16,500 students and is known for interdisciplinary STEMM education and research in Tsukuba Science City.",
+  "Provider_postalCode": "305-8577",
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/en/thumb/5/51/Tsukuba-U-quadrangle.JPG/250px-Tsukuba-U-quadrangle.JPG",
+  "Created Date": "2025-07-19T10:53:07.262Z",
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/University_of_Tsukuba",
+    "https://www.linkedin.com/school/筑波大学/",
+    "https://www.instagram.com/university_of_tsukuba/"
+  ],
+  "Provider_slug": "tsukuba",
+  "Country": "1699626478679x607806797389143200"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/University_of_Tsukuba" target="_blank">https://en.wikipedia.org/wiki/University_of_Tsukuba</a></li><li><a href="https://www.linkedin.com/school/筑波大学/" target="_blank">https://www.linkedin.com/school/筑波大学/</a></li><li><a href="https://www.instagram.com/university_of_tsukuba/" target="_blank">https://www.instagram.com/university_of_tsukuba/</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

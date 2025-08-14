@@ -1,0 +1,51 @@
+---
+const provider = {
+  "Country": "1699626478679x607806797389143200",
+  "Provider_MarketingCopy": "Japan’s oldest private university and a symbol of innovation, Keio shapes tomorrow’s leaders in business, health, and society.",
+  "Location identifier": "Branch",
+  "Provider_slug": "keio",
+  "Created Date": "2025-07-11T11:32:29.143Z",
+  "Provider_streetAddress": "2-chōme-15-45 Mita, Minato City",
+  "_id": "1752233548870x724153379322331100",
+  "Provider_postalCode": "108-0073",
+  "Provider_sameAs": [
+    "https://www.linkedin.com/school/keio-university/",
+    "https://en.wikipedia.org/wiki/Keio_University",
+    "https://www.instagram.com/keio_univ_official/"
+  ],
+  "Provider_logo": "https://www.keio.ac.jp/en/assets/images/about/learn-more/logo/index/img02.png",
+  "Created By": "1711122671403x176776188326891680",
+  "Provider_Alumni": [
+    "1752233991150x455611127276503000",
+    "1752269032578x170147592747614200"
+  ],
+  "Provider_photo": "https://www.keio.ac.jp/en/top_mainvisual/files/2024/3/19/1_top_pc_01.png",
+  "Provider_subjectOf": [
+    "1752233914466x513109376270598140"
+  ],
+  "Provider_url": "https://www.keio.ac.jp/en/",
+  "Modified Date": "2025-07-19T11:51:14.104Z",
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050",
+    "1752267634774x950899466160611300"
+  ],
+  "Provider_addressLocality": "Tokyo",
+  "Provider_name": "Keio University",
+  "Provider_description": "Keio University is Japan’s oldest private higher education institution, founded in 1858 in Tokyo. It is widely known for excellence in economics, business, and medicine."
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://www.linkedin.com/school/keio-university/" target="_blank">https://www.linkedin.com/school/keio-university/</a></li><li><a href="https://en.wikipedia.org/wiki/Keio_University" target="_blank">https://en.wikipedia.org/wiki/Keio_University</a></li><li><a href="https://www.instagram.com/keio_univ_official/" target="_blank">https://www.instagram.com/keio_univ_official/</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

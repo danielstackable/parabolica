@@ -1,0 +1,48 @@
+---
+const provider = {
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800"
+  ],
+  "Modified Date": "2025-07-25T21:53:26.801Z",
+  "Country": "1699626478679x607806797389143200",
+  "Provider_addressLocality": "Tokyo",
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Okuma1.jpg/2560px-Okuma1.jpg",
+  "Provider_streetAddress": "1-chōme-104 Totsukamachi, Shinjuku City",
+  "Provider_postalCode": "169-8050",
+  "Provider_subjectOf": [
+    "1752514281585x690641187063988200"
+  ],
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/Waseda_University",
+    "https://www.linkedin.com/school/wasedauniversity/",
+    "https://www.instagram.com/waseda_university/"
+  ],
+  "Created Date": "2025-07-14T17:26:24.045Z",
+  "Provider_MarketingCopy": "Join one of Japan’s most prestigious universities—where tradition meets innovation at the Okuma Auditorium in Shinjuku.",
+  "Provider_description": "Waseda University is a private research university in Tokyo, Japan, founded in 1882. With over 47,000 students across multiple campuses, it is a leading global institution, especially renowned for its programs in business, politics, and engineering.",
+  "Location identifier": "Branch",
+  "Provider_logo": "https://upload.wikimedia.org/wikipedia/en/thumb/0/0d/Waseda_University_Logo.svg/300px-Waseda_University_Logo.svg.png",
+  "Provider_url": "https://www.waseda.jp/top/en/",
+  "Provider_Alumni": [
+    "1752514369050x290378050832695300"
+  ],
+  "Created By": "1711122671403x176776188326891680",
+  "Provider_slug": "waseda",
+  "_id": "1752513983489x634888046192885800",
+  "Provider_name": "Waseda University"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/Waseda_University" target="_blank">https://en.wikipedia.org/wiki/Waseda_University</a></li><li><a href="https://www.linkedin.com/school/wasedauniversity/" target="_blank">https://www.linkedin.com/school/wasedauniversity/</a></li><li><a href="https://www.instagram.com/waseda_university/" target="_blank">https://www.instagram.com/waseda_university/</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

@@ -1,0 +1,45 @@
+---
+const provider = {
+  "Provider_MarketingCopy": "A global gateway just outside Tokyo—TIU empowers students through internationally focused, English-taught degrees.",
+  "Provider_url": "https://www.tiu.ac.jp/english/",
+  "Provider_description": "Tokyo International University is a private institution located in Kawagoe, Saitama. It specializes in international education and offers English-taught programs in business, economics, and international relations.",
+  "Created Date": "2025-07-19T11:42:54.443Z",
+  "Modified Date": "2025-07-25T07:41:41.619Z",
+  "Provider_name": "Tokyo International University",
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/Tokyo_International_University"
+  ],
+  "Created By": "1711122671403x176776188326891680",
+  "Country": "1699626478679x607806797389143200",
+  "Provider_logo": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Tokyo_International_University_Logo.png",
+  "Provider_streetAddress": "1-13-1 Matobakita, Kawagoe",
+  "Provider_Alumni": [
+    "1753429243019x581192397514604500"
+  ],
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050",
+    "1752267634774x950899466160611300"
+  ],
+  "_id": "1752925373697x829515442694127600",
+  "Provider_addressLocality": "Saitama",
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Tokyo_International_University_1st_campus.jpg/250px-Tokyo_International_University_1st_campus.jpg",
+  "Provider_postalCode": "350-1197",
+  "Location identifier": "Branch",
+  "Provider_slug": "tokyo-international"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/Tokyo_International_University" target="_blank">https://en.wikipedia.org/wiki/Tokyo_International_University</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

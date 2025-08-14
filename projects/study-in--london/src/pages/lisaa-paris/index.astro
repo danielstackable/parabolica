@@ -1,0 +1,49 @@
+---
+const provider = {
+  "Provider_addressCountry": "France",
+  "Provider_url": "https://www.lisaa.com/",
+  "Provider_MarketingCopy": "Marketing blah",
+  "Country": "1679086829406x640291026158935700",
+  "Modified Date": "2025-07-27T21:22:51.492Z",
+  "Provider_logo": "https://upload.wikimedia.org/wikipedia/en/c/cd/LISAA_School_of_Art_%26_Design_logo.png",
+  "Provider_streetAddress": "73 Rue Pascal, Paris 75013",
+  "Created By": "admin_user_stackableeducation_test",
+  "Provider_name": "LISAA Paris - School of Art & Design",
+  "Address": {
+    "address": "73 Rue Pascal, 75013 Paris, France",
+    "lat": 48.8340268,
+    "lng": 2.3476515
+  },
+  "Created Date": "2025-07-04T17:05:15.604Z",
+  "Provider_description": "LISAA School of Art & Design, (L'Institut Supérieur des Arts Appliqués) is a French private college for applied arts education founded in 1986. LISAA has locations in Paris, Rennes, Nantes, Strasbourg, Bordeaux and Toulouse. The school is one of about 100 recognized by the French Ministry of Culture and Communication. Diplomas are offered in graphic design, animation & video games, interior architecture & design, and fashion",
+  "Provider_CanonicalDomainEN": [
+    "1752267634088x534268230107600060",
+    "1752267634089x491627267459744400",
+    "1752267634089x620026293001218800",
+    "1752267634089x967931274084837100",
+    "1752267634764x736548518655417100",
+    "1752267635077x482223088680964600"
+  ],
+  "Provider_postalCode": "75013",
+  "_id": "1751648715604x294074056799007400",
+  "Provider_addressLocality": "Paris",
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/LISAA_School_of_Art_%26_Design"
+  ],
+  "Provider_slug": "lisaa-paris"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/LISAA_School_of_Art_%26_Design" target="_blank">https://en.wikipedia.org/wiki/LISAA_School_of_Art_%26_Design</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

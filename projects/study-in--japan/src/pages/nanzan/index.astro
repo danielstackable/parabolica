@@ -1,0 +1,43 @@
+---
+const provider = {
+  "Provider_slug": "nanzan",
+  "Provider_streetAddress": "18 Yamazato-cho, Showa-ku",
+  "Provider_MarketingCopy": "Engage with the world at Nanzan—Nagoya’s Catholic university focused on language, culture, and global understanding.",
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/Nanzan_University",
+    "https://www.linkedin.com/school/nanzan-university/",
+    "https://www.instagram.com/nanzan_univ/"
+  ],
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Nanzan_b.jpg/250px-Nanzan_b.jpg",
+  "Provider_url": "https://www.nanzan-u.ac.jp/English/",
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050"
+  ],
+  "_id": "1752923259604x819076172934807600",
+  "Provider_name": "Nanzan University",
+  "Provider_logo": "https://upload.wikimedia.org/wikipedia/en/thumb/5/5b/Nanzan-logo.png/175px-Nanzan-logo.png",
+  "Country": "1699626478679x607806797389143200",
+  "Provider_description": "Nanzan University is a private Catholic university located in Nagoya, Japan, founded in 1946. It is well known for its programs in foreign studies and intercultural communication.",
+  "Modified Date": "2025-07-19T11:08:36.090Z",
+  "Provider_postalCode": "466-8673",
+  "Created Date": "2025-07-19T11:07:39.911Z",
+  "Created By": "1711122671403x176776188326891680",
+  "Provider_addressLocality": " Nagoya",
+  "Location identifier": "Branch"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/Nanzan_University" target="_blank">https://en.wikipedia.org/wiki/Nanzan_University</a></li><li><a href="https://www.linkedin.com/school/nanzan-university/" target="_blank">https://www.linkedin.com/school/nanzan-university/</a></li><li><a href="https://www.instagram.com/nanzan_univ/" target="_blank">https://www.instagram.com/nanzan_univ/</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

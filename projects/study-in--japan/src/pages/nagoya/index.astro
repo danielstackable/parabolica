@@ -1,0 +1,47 @@
+---
+const provider = {
+  "Created Date": "2025-07-16T06:38:08.078Z",
+  "Provider_streetAddress": "Furo‑cho, Chikusa‑ku",
+  "Location identifier": "Branch",
+  "Provider_addressLocality": "Nagoya",
+  "Provider_Alumni": [
+    "1752648191881x271870185257304060",
+    "1752648240420x696982533226889200",
+    "1752732480875x231269890470969340"
+  ],
+  "Provider_name": "Nagoya University",
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Nagoya_University_00.jpg/250px-Nagoya_University_00.jpg",
+  "Provider_description": "Nagoya University is a national research university in Nagoya, Japan, founded 1871 (chartered 1939). It is known for Nobel Prize–winning research in physics and chemistry and robust Global 30 Programs.",
+  "Created By": "1711122671403x176776188326891680",
+  "Provider_slug": "nagoya",
+  "Provider_postalCode": "464-8601",
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050"
+  ],
+  "Modified Date": "2025-07-17T06:08:01.802Z",
+  "_id": "1752647887666x263666692296278000",
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/Nagoya_University",
+    "https://www.linkedin.com/school/nagoyauniversity/",
+    "https://www.instagram.com/nagoyauni_g30/"
+  ],
+  "Country": "1699626478679x607806797389143200",
+  "Provider_logo": "https://upload.wikimedia.org/wikipedia/en/thumb/3/3e/Nagoya_University_logo.svg/250px-Nagoya_University_logo.svg.png",
+  "Provider_url": "https://en.nagoya-u.ac.jp/"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/Nagoya_University" target="_blank">https://en.wikipedia.org/wiki/Nagoya_University</a></li><li><a href="https://www.linkedin.com/school/nagoyauniversity/" target="_blank">https://www.linkedin.com/school/nagoyauniversity/</a></li><li><a href="https://www.instagram.com/nagoyauni_g30/" target="_blank">https://www.instagram.com/nagoyauni_g30/</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

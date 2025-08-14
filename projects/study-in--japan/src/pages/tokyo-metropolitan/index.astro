@@ -1,0 +1,47 @@
+---
+const provider = {
+  "Provider_streetAddress": "1-1 Minami-osawa, Hachioji-shi",
+  "Created By": "1711122671403x176776188326891680",
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050",
+    "1752267634774x950899466160611300"
+  ],
+  "Created Date": "2025-07-23T06:18:43.056Z",
+  "Provider_name": "Tokyo Metropolitan University",
+  "Provider_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/%E6%9D%B1%E4%BA%AC%E9%83%BD%E7%AB%8B%E5%A4%A7%E5%AD%A6%E3%83%AD%E3%82%B4.svg/500px-%E6%9D%B1%E4%BA%AC%E9%83%BD%E7%AB%8B%E5%A4%A7%E5%AD%A6%E3%83%AD%E3%82%B4.svg.png",
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Tokyo_Metropolitan_University_2006_10_07_v4.jpg/960px-Tokyo_Metropolitan_University_2006_10_07_v4.jpg",
+  "Provider_addressLocality": "Tokyo",
+  "Provider_postalCode": "192-0397",
+  "Provider_url": "https://www.tmu.ac.jp/english/index.html",
+  "Location identifier": "Branch",
+  "Provider_MarketingCopy": "A leading urban university supporting Tokyo’s growth through cutting-edge science and policy education.",
+  "Modified Date": "2025-07-23T06:21:19.816Z",
+  "Provider_Alumni": [
+    "1753251676632x595642591572656100"
+  ],
+  "_id": "1753251522625x948217445175263200",
+  "Country": "1699626478679x607806797389143200",
+  "Provider_description": "Tokyo Metropolitan University is a public university founded in 1949. It offers a broad range of programs with a strong focus on science, urban policy, and environmental studies.",
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/Tokyo_Metropolitan_University",
+    "https://www.linkedin.com/school/tokyo-metropolitan-university/",
+    "https://www.instagram.com/tmu_official/"
+  ],
+  "Provider_slug": "tokyo-metropolitan"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/Tokyo_Metropolitan_University" target="_blank">https://en.wikipedia.org/wiki/Tokyo_Metropolitan_University</a></li><li><a href="https://www.linkedin.com/school/tokyo-metropolitan-university/" target="_blank">https://www.linkedin.com/school/tokyo-metropolitan-university/</a></li><li><a href="https://www.instagram.com/tmu_official/" target="_blank">https://www.instagram.com/tmu_official/</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

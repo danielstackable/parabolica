@@ -1,0 +1,48 @@
+---
+const provider = {
+  "_id": "1753426194792x139263509183594500",
+  "Location identifier": "Branch",
+  "Created By": "1711122671403x176776188326891680",
+  "Provider_logo": "https://www.tci.ac.jp/img/common/logo.svg",
+  "Provider_slug": "tokyo-christian",
+  "Provider_description": "Tokyo Christian University is a private liberal arts college offering programs in theology and international studies, with a Christian foundation and small, diverse student body.",
+  "Provider_addressLocality": "Chiba",
+  "Provider_Alumni": [
+    "1753427390951x363724949926182900",
+    "1753427594770x393399701142503400"
+  ],
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/TCUInzai.JPG/250px-TCUInzai.JPG",
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/Tokyo_Christian_University",
+    "https://www.linkedin.com/school/tokyo-christian-university/",
+    "https://www.instagram.com/tokyochristianuniversity/"
+  ],
+  "Country": "1699626478679x607806797389143200",
+  "Provider_MarketingCopy": "Faith-based education in Japan with a global mindset—Tokyo Christian University offers a close-knit academic community.",
+  "Provider_streetAddress": "3-301-5 Uchino, Inzai-shi",
+  "Provider_name": "Tokyo Christian University",
+  "Modified Date": "2025-07-25T07:42:33.083Z",
+  "Created Date": "2025-07-25T06:49:55.391Z",
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050",
+    "1752267634774x950899466160611300"
+  ],
+  "Provider_url": "https://www.tci.ac.jp/english/",
+  "Provider_postalCode": "270-1347"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/Tokyo_Christian_University" target="_blank">https://en.wikipedia.org/wiki/Tokyo_Christian_University</a></li><li><a href="https://www.linkedin.com/school/tokyo-christian-university/" target="_blank">https://www.linkedin.com/school/tokyo-christian-university/</a></li><li><a href="https://www.instagram.com/tokyochristianuniversity/" target="_blank">https://www.instagram.com/tokyochristianuniversity/</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

@@ -1,0 +1,48 @@
+---
+const provider = {
+  "Modified Date": "2025-07-15T08:29:03.587Z",
+  "Provider_name": "iU Tokyo",
+  "Created Date": "2025-07-11T11:20:55.730Z",
+  "Country": "1699626478679x607806797389143200",
+  "Provider_url": "https://www.i-u.ac.jp/",
+  "Created By": "1711122671403x176776188326891680",
+  "Provider_streetAddress": "1 Chome-18-13 Bunka, Sumida City",
+  "Provider_description": "iU Tokyo – Information Management Innovation Professional University is a forward-thinking private university located in Tokyo, Japan. Specializing in innovation, entrepreneurship, and technology, iU Tokyo offers English-taught and bilingual undergraduate programs designed for international students seeking a career-focused education in Japan. The university blends business, digital skills, and real-world experience — including internships and practicums — with a global outlook.\n\nWith a curriculum shaped by working professionals and industry mentors, iU Tokyo prepares students to thrive in fields such as business innovation, digital transformation, startup leadership, and software development. Its unique bilingual pathway allows students to start in English and gradually incorporate Japanese, opening career doors in Japan and beyond.",
+  "Provider_slug": "iu-tokyo",
+  "Provider_postalCode": "131-0044",
+  "_id": "1752232854922x146563064953307140",
+  "Provider_addressLocality": "Tokyo",
+  "Provider_sameAs": [
+    "https://www.linkedin.com/company/iu-professional-university-of-information-management-innovatio",
+    "same"
+  ],
+  "Provider_photo": "https://d28fv2wf8x8ap4.cloudfront.net/wp-content/uploads/2025/03/21104051/overview.jpg",
+  "Provider_subjectOf": [
+    "1752566515468x534743484022652900",
+    "1752568143219x506546262554705900"
+  ],
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050"
+  ],
+  "Provider_logo": "https://www.i-u.ac.jp/wp-content/themes/innovation_university/img/common/logo.svg",
+  "Location identifier": "Branch",
+  "Provider_Alumni": [
+    "1752268555853x194398007752392700"
+  ]
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://www.linkedin.com/company/iu-professional-university-of-information-management-innovatio" target="_blank">https://www.linkedin.com/company/iu-professional-university-of-information-management-innovatio</a></li><li><a href="same" target="_blank">same</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

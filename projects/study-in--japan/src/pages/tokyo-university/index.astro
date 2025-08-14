@@ -1,0 +1,44 @@
+---
+const provider = {
+  "Modified Date": "2025-07-19T11:53:28.490Z",
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/University_of_Tokyo",
+    "https://www.linkedin.com/school/the-university-of-tokyo/",
+    "https://www.instagram.com/university_of_tokyo/"
+  ],
+  "Provider_postalCode": "113-8654",
+  "Provider_MarketingCopy": "Lead with excellence—The University of Tokyo is Japan’s top-ranked institution for world-class education and discovery.",
+  "Location identifier": "Branch",
+  "Provider_streetAddress": "7-3-1 Hongo, Bunkyo-ku",
+  "Provider_description": "The University of Tokyo is Japan’s most prestigious national university, founded in 1877. It is globally recognized for its academic excellence and research impact across all disciplines.",
+  "Created By": "1711122671403x176776188326891680",
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Yasuda_Auditorium_-_Tokyo_University_4.jpg/250px-Yasuda_Auditorium_-_Tokyo_University_4.jpg",
+  "_id": "1752925967909x156117091868475400",
+  "Provider_name": "The University of Tokyo",
+  "Provider_slug": "tokyo-university",
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050",
+    "1752267634774x950899466160611300"
+  ],
+  "Provider_addressLocality": "Tokyo",
+  "Provider_url": "https://www.u-tokyo.ac.jp/en/",
+  "Provider_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/University_of_Tokyo_logo_%282024%29.svg/250px-University_of_Tokyo_logo_%282024%29.svg.png",
+  "Country": "1699626478679x607806797389143200",
+  "Created Date": "2025-07-19T11:52:48.239Z"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/University_of_Tokyo" target="_blank">https://en.wikipedia.org/wiki/University_of_Tokyo</a></li><li><a href="https://www.linkedin.com/school/the-university-of-tokyo/" target="_blank">https://www.linkedin.com/school/the-university-of-tokyo/</a></li><li><a href="https://www.instagram.com/university_of_tokyo/" target="_blank">https://www.instagram.com/university_of_tokyo/</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

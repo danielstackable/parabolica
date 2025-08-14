@@ -1,0 +1,10 @@
+
+{
+  "name": "scripts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build:sync": "tsc --project tsconfig.json --outDir dist",
+    "sync": "node dist/bubble-to-astro-sync.js"
+  }
+}

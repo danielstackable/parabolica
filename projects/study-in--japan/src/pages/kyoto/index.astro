@@ -1,0 +1,43 @@
+---
+const provider = {
+  "Provider_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Kyoto_University_emblem.svg/360px-Kyoto_University_emblem.svg.png",
+  "Provider_Alumni": [
+    "1753082932014x461625224153268200",
+    "1753083006179x551593371859681300"
+  ],
+  "_id": "1753082824772x317731327913230340",
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050",
+    "1752267634774x850882352743694200"
+  ],
+  "Provider_postalCode": "606-8501",
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kyoto_University_Clock_Tower.jpg/500px-Kyoto_University_Clock_Tower.jpg",
+  "Provider_slug": "kyoto",
+  "Location identifier": "Branch",
+  "Provider_name": "Kyoto University",
+  "Country": "1699626478679x607806797389143200",
+  "Provider_url": "https://www.kyoto-u.ac.jp/en",
+  "Provider_streetAddress": "Yoshida-honmachi, Sakyo-ku",
+  "Created Date": "2025-07-21T07:27:05.553Z",
+  "Created By": "1711122671403x176776188326891680",
+  "Provider_description": "Kyoto University is a leading national university in Kyoto, Japan, founded in 1897. It is internationally respected for research in chemistry, physics, and biology and has produced multiple Nobel laureates.",
+  "Modified Date": "2025-07-21T07:30:42.557Z",
+  "Provider_MarketingCopy": "Excellence through inquiry—Kyoto University is one of Asia’s top research institutions in science and the humanities.",
+  "Provider_addressLocality": "Kyoto"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

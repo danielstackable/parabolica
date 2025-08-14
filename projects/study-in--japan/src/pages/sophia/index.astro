@@ -1,0 +1,53 @@
+---
+const provider = {
+  "Location identifier": "Branch",
+  "Provider_description": "Sophia University is a private Jesuit university in Tokyo, Japan, founded in 1913. It offers undergraduate and graduate programs in English and Japanese across liberal arts, global studies, science, and engineering.",
+  "Created Date": "2025-07-15T18:58:44.112Z",
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/Sophia_University",
+    "https://www.instagram.com/sophia.university/",
+    "https://www.linkedin.com/school/sophiauniv/"
+  ],
+  "Provider_name": "Sophia University",
+  "Provider_logo": "https://upload.wikimedia.org/wikipedia/en/thumb/c/cb/Sophia_University_emblem.png/250px-Sophia_University_emblem.png",
+  "Country": "1699626478679x607806797389143200",
+  "Modified Date": "2025-07-17T06:09:08.593Z",
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050",
+    "1752267634774x950899466160611300"
+  ],
+  "Created By": "1711122671403x176776188326891680",
+  "Provider_subjectOf": [
+    "1752643824395x141109801524133890",
+    "1752647241963x994304900229234700",
+    "1752647312022x827509945920913400"
+  ],
+  "Provider_addressLocality": "Tokyo",
+  "_id": "1752605923067x193519879909802000",
+  "Provider_streetAddress": "7‑1 Kioicho, Chiyoda‑ku",
+  "Provider_postalCode": "102-0094",
+  "Provider_url": "https://www.sophia.ac.jp/eng/",
+  "Provider_slug": "sophia",
+  "Provider_Alumni": [
+    "1752646572518x679385551313305600",
+    "1752647704612x388819002966671360",
+    "1752732548332x562637939050020860"
+  ],
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Sophia_University_Yotsuya_Campus3.jpg/250px-Sophia_University_Yotsuya_Campus3.jpg"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/Sophia_University" target="_blank">https://en.wikipedia.org/wiki/Sophia_University</a></li><li><a href="https://www.instagram.com/sophia.university/" target="_blank">https://www.instagram.com/sophia.university/</a></li><li><a href="https://www.linkedin.com/school/sophiauniv/" target="_blank">https://www.linkedin.com/school/sophiauniv/</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

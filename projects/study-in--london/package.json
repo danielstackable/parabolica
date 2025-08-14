@@ -1,0 +1,13 @@
+{
+  "name": "study-in--london",
+  "private": true,
+  "version": "0.0.1",
+   "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/db": "^0.15.0"
+  }
+}

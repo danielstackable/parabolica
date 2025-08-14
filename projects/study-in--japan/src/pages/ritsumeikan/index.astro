@@ -1,0 +1,44 @@
+---
+const provider = {
+  "Created By": "1711122671403x176776188326891680",
+  "Provider_postalCode": "603-8577",
+  "Provider_name": "Ritsumeikan University",
+  "_id": "1752922968705x972456932300030000",
+  "Modified Date": "2025-07-19T11:49:31.397Z",
+  "Provider_description": "Ritsumeikan University is a private university in Kyoto, Japan, established in 1900. It is known for its international outlook and programs in international relations, law, and policy science.",
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/Ritsumeikan_University",
+    "https://www.linkedin.com/school/ritsumeikan-university/",
+    "https://www.instagram.com/ritsumeikan_univ/"
+  ],
+  "Location identifier": "Branch",
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Zonshinkan_Hall_at_Ritsumeikan_Univ.jpg/250px-Zonshinkan_Hall_at_Ritsumeikan_Univ.jpg",
+  "Provider_MarketingCopy": "Shape the future at Ritsumeikan—Kyoto’s globally engaged university rooted in tradition and innovation.",
+  "Provider_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Ritsumeikan_University_logo.svg/100px-Ritsumeikan_University_logo.svg.png",
+  "Created Date": "2025-07-19T11:02:49.019Z",
+  "Provider_addressLocality": "Kyoto",
+  "Provider_slug": "ritsumeikan",
+  "Country": "1699626478679x607806797389143200",
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050",
+    "1752267634774x850882352743694200"
+  ],
+  "Provider_url": "https://en.ritsumei.ac.jp/",
+  "Provider_streetAddress": "56-1 Toji-in Kitamachi, Kita Ward"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/Ritsumeikan_University" target="_blank">https://en.wikipedia.org/wiki/Ritsumeikan_University</a></li><li><a href="https://www.linkedin.com/school/ritsumeikan-university/" target="_blank">https://www.linkedin.com/school/ritsumeikan-university/</a></li><li><a href="https://www.instagram.com/ritsumeikan_univ/" target="_blank">https://www.instagram.com/ritsumeikan_univ/</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

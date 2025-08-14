@@ -1,0 +1,46 @@
+---
+const provider = {
+  "Provider_url": "https://www.okayama-u.ac.jp/index_e.html",
+  "Provider_slug": "okayama",
+  "Provider_Alumni": [
+    "1753430022798x960356027599421400"
+  ],
+  "Created Date": "2025-07-25T07:46:58.128Z",
+  "Created By": "1711122671403x176776188326891680",
+  "_id": "1753429617900x996005172104396800",
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050"
+  ],
+  "Provider_logo": "https://www.okayama-u.ac.jp/_img/header/en/title.svg",
+  "Modified Date": "2025-07-25T07:55:24.661Z",
+  "Provider_name": "Okayama University",
+  "Provider_description": "Okayama University is a national university known for strong research in medicine, engineering, and environmental science, located in western Japan.",
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/Okayama_University",
+    "https://www.linkedin.com/school/okayama-university/",
+    "https://www.instagram.com/okayama_university/"
+  ],
+  "Provider_addressLocality": "Okayama",
+  "Country": "1699626478679x607806797389143200",
+  "Location identifier": "Branch",
+  "Provider_postalCode": "700-8530",
+  "Provider_streetAddress": "3-1-1 Tsushima-naka, Kita-ku",
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Okayama_University_of_Science.jpg/250px-Okayama_University_of_Science.jpg",
+  "Provider_MarketingCopy": "Innovating health, tech, and sustainability—study at Okayama University in western Japan."
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/Okayama_University" target="_blank">https://en.wikipedia.org/wiki/Okayama_University</a></li><li><a href="https://www.linkedin.com/school/okayama-university/" target="_blank">https://www.linkedin.com/school/okayama-university/</a></li><li><a href="https://www.instagram.com/okayama_university/" target="_blank">https://www.instagram.com/okayama_university/</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

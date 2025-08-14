@@ -1,0 +1,82 @@
+---
+const program = {
+  "Program_educationalCredentialAwarded": "oijk",
+  "_id": "1753651587624x635536629437825000",
+  "Program_provider": {
+    "Provider_Alumni": [
+      "1753082932014x461625224153268200",
+      "1753083006179x551593371859681300"
+    ],
+    "Created Date": "2025-07-21T07:27:05.553Z",
+    "Provider_MarketingCopy": "Excellence through inquiry—Kyoto University is one of Asia’s top research institutions in science and the humanities.",
+    "Provider_url": "https://www.kyoto-u.ac.jp/en",
+    "Provider_streetAddress": "Yoshida-honmachi, Sakyo-ku",
+    "Provider_description": "Kyoto University is a leading national university in Kyoto, Japan, founded in 1897. It is internationally respected for research in chemistry, physics, and biology and has produced multiple Nobel laureates.",
+    "Provider_name": "Kyoto University",
+    "Provider_postalCode": "606-8501",
+    "Provider_addressLocality": "Kyoto",
+    "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kyoto_University_Clock_Tower.jpg/500px-Kyoto_University_Clock_Tower.jpg",
+    "Provider_slug": "kyoto",
+    "_id": "1753082824772x317731327913230340",
+    "Created By": "1711122671403x176776188326891680",
+    "Provider_CanonicalDomainEN": [
+      "1752267634773x487077530070184800",
+      "1752267634774x255629930112750050",
+      "1752267634774x850882352743694200"
+    ],
+    "Country": "1699626478679x607806797389143200",
+    "Provider_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Kyoto_University_emblem.svg/360px-Kyoto_University_emblem.svg.png",
+    "Location identifier": "Branch",
+    "Modified Date": "2025-07-21T07:30:42.557Z"
+  },
+  "Program_programType": "Master's degree",
+  "Program_occupationalCategory": [
+    {
+      "Created Date": "2025-07-04T07:33:40.377Z",
+      "Created By": "admin_user_stackableeducation_test",
+      "Modified Date": "2025-07-04T07:33:40.377Z",
+      "_id": "1751614420377x912443879973810600",
+      "Occupation_name": "25-2059.01 - Adapted Physical Education Specialists"
+    }
+  ],
+  "Created By": "1753651299919x212611175606395970",
+  "Program_description": "Desc.",
+  "Created Date": "2025-07-27T21:26:28.405Z",
+  "Program_slug": "computer-science",
+  "Program_educationalProgramMode": "https://schema.org/FullTime",
+  "Program_timeToComplete": "P4u",
+  "Modified Date": "2025-08-02T19:02:08.024Z",
+  "Program_educationalLevel": "https://schema.org/Bachelors",
+  "Program_name": "Computer Science Nora Mat",
+  "Program_inLanguage": [
+    {
+      "Created By": "admin_user_stackableeducation_test",
+      "Modified Date": "2023-11-16T19:44:46.746Z",
+      "Created Date": "2023-11-16T19:44:46.746Z",
+      "Language_name": "Albanian",
+      "_id": "1700163886746x540271684839608770",
+      "Language_code": "SQ"
+    }
+  ]
+};
+const provider = program.Program_provider;
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{program.Program_name}</title></head>
+  <body>
+    <h1>{program.Program_name}</h1>
+    <p>{program.Program_description}</p>
+    <p><strong>Credential:</strong> {program.Program_educationalCredentialAwarded}</p>
+    <p><strong>Level:</strong> {program.Program_educationalLevel}</p>
+    <p><strong>Mode:</strong> {program.Program_educationalProgramMode}</p>
+    <p><strong>Program Type:</strong> {program.Program_programType}</p>
+    <p><strong>Time to Complete:</strong> {program.Program_timeToComplete}</p>
+    <p><strong>Languages:</strong> Albanian</p>
+    <p><strong>Occupational Categories:</strong> 25-2059.01 - Adapted Physical Education Specialists</p>
+    <p><strong>Program URL:</strong> <a href="{program.Program_url}">{program.Program_url}</a></p>
+    <hr />
+    <h2>Provider: <a href="/kyoto/">Kyoto University</a></h2>
+    <p>{provider.Provider_description}</p>
+  </body>
+</html>

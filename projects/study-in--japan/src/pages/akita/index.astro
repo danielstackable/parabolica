@@ -1,0 +1,43 @@
+---
+const provider = {
+  "Modified Date": "2025-07-23T06:16:07.952Z",
+  "Provider_name": "Akita International University",
+  "_id": "1753083221611x963095896168071200",
+  "Provider_postalCode": "010-1292",
+  "Country": "1699626478679x607806797389143200",
+  "Provider_streetAddress": "Yuwa, Akita-shi, Okutsubakidai 1-1",
+  "Provider_description": "Akita International University is a public university in Akita Prefecture, Japan, known for its liberal arts curriculum and requirement for students to study abroad. All classes are taught in English.",
+  "Created By": "1711122671403x176776188326891680",
+  "Provider_addressLocality": "Akita",
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/Akita_International_University",
+    "https://www.linkedin.com/school/akita-international-university/",
+    "https://www.instagram.com/aiu_japan/"
+  ],
+  "Created Date": "2025-07-21T07:33:41.861Z",
+  "Location identifier": "Branch",
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050"
+  ],
+  "Provider_slug": "akita",
+  "Provider_url": "https://web.aiu.ac.jp/en/",
+  "Provider_MarketingCopy": "A fully English-taught Japanese university—Akita International offers global education in a quiet, natural setting.",
+  "Provider_logo": "https://upload.wikimedia.org/wikipedia/commons/3/34/Aiulogo.png",
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Inside_Nakajima_Library.jpg/2560px-Inside_Nakajima_Library.jpg"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/Akita_International_University" target="_blank">https://en.wikipedia.org/wiki/Akita_International_University</a></li><li><a href="https://www.linkedin.com/school/akita-international-university/" target="_blank">https://www.linkedin.com/school/akita-international-university/</a></li><li><a href="https://www.instagram.com/aiu_japan/" target="_blank">https://www.instagram.com/aiu_japan/</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>

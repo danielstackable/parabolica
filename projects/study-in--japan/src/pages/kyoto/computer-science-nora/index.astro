@@ -1,0 +1,98 @@
+---
+const program = {
+  "Program_educationalLevel": "https://schema.org/Bachelors",
+  "Created By": "1753651299919x212611175606395970",
+  "Program_inLanguage": [
+    {
+      "Modified Date": "2023-11-16T19:44:46.746Z",
+      "_id": "1700163886746x540271684839608770",
+      "Language_code": "SQ",
+      "Language_name": "Albanian",
+      "Created Date": "2023-11-16T19:44:46.746Z",
+      "Created By": "admin_user_stackableeducation_test"
+    }
+  ],
+  "Program_programType": "Master's degree",
+  "Created Date": "2025-07-27T21:26:28.405Z",
+  "Program_timeToComplete": "P4u",
+  "Program_educationalCredentialAwarded": "oijk",
+  "Program_name": "Computer Science Nora Mat",
+  "Program_description": "Desc.",
+  "Program_educationalProgramMode": "https://schema.org/FullTime",
+  "Program_provider": {
+    "Provider_name": "Kyoto University",
+    "Provider_MarketingCopy": "Excellence through inquiry—Kyoto University is one of Asia’s top research institutions in science and the humanities.",
+    "Provider_logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Kyoto_University_emblem.svg/360px-Kyoto_University_emblem.svg.png",
+    "Provider_slug": "kyoto",
+    "Location identifier": "Branch",
+    "Created Date": "2025-07-21T07:27:05.553Z",
+    "Modified Date": "2025-07-21T07:30:42.557Z",
+    "Provider_CanonicalDomainEN": [
+      {
+        "_id": "1752267634773x487077530070184800",
+        "Domain": "study-in--japan.com"
+      },
+      {
+        "_id": "1752267634774x255629930112750050",
+        "Domain": "etudier-au--japon.com"
+      },
+      {
+        "_id": "1752267634774x850882352743694200",
+        "Domain": "study-in--kyoto.com"
+      }
+    ],
+    "Created By": "1711122671403x176776188326891680",
+    "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Kyoto_University_Clock_Tower.jpg/500px-Kyoto_University_Clock_Tower.jpg",
+    "Provider_Alumni": [
+      "1753082932014x461625224153268200",
+      "1753083006179x551593371859681300"
+    ],
+    "Provider_description": "Kyoto University is a leading national university in Kyoto, Japan, founded in 1897. It is internationally respected for research in chemistry, physics, and biology and has produced multiple Nobel laureates.",
+    "Provider_postalCode": "606-8501",
+    "_id": "1753082824772x317731327913230340",
+    "Country": "1699626478679x607806797389143200",
+    "Provider_streetAddress": "Yoshida-honmachi, Sakyo-ku",
+    "Provider_addressLocality": "Kyoto",
+    "Provider_url": "https://www.kyoto-u.ac.jp/en"
+  },
+  "Program_slug": "computer-science-nora",
+  "Program_occupationalCategory": [
+    {
+      "Modified Date": "2025-07-04T07:33:40.377Z",
+      "Occupation_name": "25-2059.01 - Adapted Physical Education Specialists",
+      "Created Date": "2025-07-04T07:33:40.377Z",
+      "Created By": "admin_user_stackableeducation_test",
+      "_id": "1751614420377x912443879973810600"
+    }
+  ],
+  "Modified Date": "2025-08-02T19:03:48.109Z",
+  "_id": "1753651587624x635536629437825000"
+};
+const provider = program.Program_provider;
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{program.Program_name}</title></head>
+  <body>
+    <h1>{program.Program_name}</h1>
+    <p>{program.Program_description}</p>
+    <p><strong>Slug:</strong> {program.Program_slug}</p>
+    <p><strong>Credential:</strong> {program.Program_educationalCredentialAwarded}</p>
+    <p><strong>Level:</strong> {program.Program_educationalLevel}</p>
+    <p><strong>Mode:</strong> {program.Program_educationalProgramMode}</p>
+    <p><strong>Program Type:</strong> {program.Program_programType}</p>
+    <p><strong>Time to Complete:</strong> {program.Program_timeToComplete}</p>
+    <p><strong>Educational Prerequisites:</strong></p>
+      <ul>
+        <li>None listed</li>
+      </ul>
+    <p><strong>Languages:</strong> Albanian</p>
+    <p><strong>Occupational Categories:</strong> 25-2059.01 - Adapted Physical Education Specialists</p>
+    <p><strong>Program URL:</strong> <a href="{program.Program_url}">{program.Program_url}</a></p>
+    <hr />
+    <h2>Provider: <a href="/kyoto/">Kyoto University</a></h2>
+    <p>{provider.Provider_description}</p>
+    <p><strong>Slug:</strong> {provider.Provider_slug}</p>
+    <p><strong>Canonical Domains:</strong> study-in--japan.com, etudier-au--japon.com, study-in--kyoto.com</p>
+  </body>
+</html>

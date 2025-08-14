@@ -1,0 +1,43 @@
+---
+const provider = {
+  "Created By": "1711122671403x176776188326891680",
+  "_id": "1752925617347x704918687145525200",
+  "Provider_description": "Tohoku University, located in Sendai, is a top national university founded in 1907. It is renowned for pioneering research, innovation, and its open-door policy toward international students.",
+  "Provider_MarketingCopy": "Innovation, inclusion, and excellence—Tohoku University leads in science and technology from the heart of Sendai.",
+  "Provider_addressLocality": "Sendai",
+  "Provider_name": "Tohoku University",
+  "Provider_streetAddress": "2-1-1 Katahira, Aoba-ku",
+  "Created Date": "2025-07-19T11:46:57.720Z",
+  "Provider_logo": "https://www.tohoku.ac.jp/en/common_images/header_logo.png",
+  "Country": "1699626478679x607806797389143200",
+  "Provider_CanonicalDomainEN": [
+    "1752267634773x487077530070184800",
+    "1752267634774x255629930112750050"
+  ],
+  "Provider_slug": "tohoku",
+  "Provider_photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Tohoku_Univ._Aobayama_New_Campus.jpg/250px-Tohoku_Univ._Aobayama_New_Campus.jpg",
+  "Provider_sameAs": [
+    "https://en.wikipedia.org/wiki/Tohoku_University",
+    "https://www.instagram.com/tohoku.univ/",
+    "https://www.linkedin.com/school/tohoku-university/"
+  ],
+  "Provider_url": "https://www.tohoku.ac.jp/en/",
+  "Modified Date": "2025-07-19T11:48:15.710Z",
+  "Provider_postalCode": "980-8577",
+  "Location identifier": "Branch"
+};
+---
+<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8" /><title>{provider.Provider_name}</title></head>
+  <body>
+    <h1>{provider.Provider_name}</h1>
+    <p>{provider.Provider_description}</p>
+    <p><strong>URL:</strong> <a href="{provider.Provider_url}">{provider.Provider_url}</a></p>
+    <p><strong>Location:</strong> {provider.Provider_streetAddress}, {provider.Provider_addressLocality}</p>
+    <p><strong>Marketing:</strong> {provider.Provider_MarketingCopy}</p>
+    <ul><li><a href="https://en.wikipedia.org/wiki/Tohoku_University" target="_blank">https://en.wikipedia.org/wiki/Tohoku_University</a></li><li><a href="https://www.instagram.com/tohoku.univ/" target="_blank">https://www.instagram.com/tohoku.univ/</a></li><li><a href="https://www.linkedin.com/school/tohoku-university/" target="_blank">https://www.linkedin.com/school/tohoku-university/</a></li></ul>
+    <img src="{provider.Provider_logo}" alt="Logo" width="150" />
+    <img src="{provider.Provider_photo}" alt="Photo" width="300" />
+  </body>
+</html>
