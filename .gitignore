@@ -1,0 +1,25 @@
+# Parabolica ignore rules
+# Node / pnpm
+node_modules/
+pnpm-debug.log
+.npmrc
+
+# Build output
+dist/
+.build/
+.cache/
+.output/
+.netlify/
+
+# Astro build output
+projects/*/dist/
+projects/*/.astro/
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Mac / system
+.DS_Store
+Thumbs.db
