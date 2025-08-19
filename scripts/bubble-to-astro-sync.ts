@@ -13,11 +13,7 @@ const ROOT = path.resolve(__dirname, "../..");
 const API_BASE = process.env.BUBBLE_BASE_URL ?? (() => {
   throw new Error("BUBBLE_BASE_URL is not defined");
 })();
-// Bing site verification codes per domain (add more as you verify new sites)
-const BING_VERIFY: Record<string, string> = {
-  "study-in--japan.com": "052EF10DBD33B0E77EB728844239AD59",
-  // "study-in--london.com": "PUT_YOURS_HERE"
-};
+
 
 
 /* 1. Types */
@@ -356,24 +352,28 @@ const jsonLd = JSON.stringify(jsonLdObj)
 function renderIndexPage(programs: StackProgram[], providers: StackProvider[], domain: string): string {
   const siteUrl = `https://${domain}/`;
 
-    // NEW: pick the code for this domain
+  // 🔐 Bing verification codes (make sure the domain key matches exactly)
+  const BING_VERIFY: Record<string, string> = {
+    "study-in--japan.com": "052EF10DBD33B0E77EB728844239AD59",
+    // "study-in--london.com": "PUT_YOURS_HERE"
+  };
   const bingMeta = BING_VERIFY[domain]
     ? `<meta name="msvalidate.01" content="${BING_VERIFY[domain]}" />`
     : "";
 
-  // Build HTML list items WITHOUT backticks to avoid nesting issues
-  const programItemsHtml = programs.map((p) => {
+  // Build HTML lists (avoid nested template strings)
+  const programItemsHtml = programs.map(p => {
     const prov = p.Program_provider as StackProvider;
     return '<li><a href="/' + prov.Provider_slug + '/' + p.Program_slug + '/">' +
            p.Program_name +
            '</a> by <a href="/' + prov.Provider_slug + '/">' + prov.Provider_name + '</a></li>';
   }).join('\n');
 
-  const providerItemsHtml = providers.map((prov) => {
+  const providerItemsHtml = providers.map(prov => {
     return '<li><a href="/' + prov.Provider_slug + '/">' + prov.Provider_name + '</a></li>';
   }).join('\n');
 
-  // Build ItemLists for JSON-LD
+  // JSON‑LD (WebSite + ItemLists)
   const programList = programs.map((p, i) => {
     const prov = p.Program_provider as StackProvider;
     return {
@@ -405,7 +405,6 @@ function renderIndexPage(programs: StackProgram[], providers: StackProvider[], d
     }
   }));
 
-  // JSON-LD graph
   const schema = [
     {
       "@context": "https://schema.org",
@@ -432,16 +431,11 @@ function renderIndexPage(programs: StackProgram[], providers: StackProvider[], d
     }
   ];
 
-  // Safe JSON-LD string
   const safeJsonLd = JSON.stringify(schema)
-    .replace(/</g, "\\u003C")
-    .replace(/>/g, "\\u003E")
-    .replace(/&/g, "\\u0026")
-    .replace(/\u2028/g, "\\u2028")
-    .replace(/\u2029/g, "\\u2029")
+    .replace(/</g, "\\u003C").replace(/>/g, "\\u003E").replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029")
     .replace(/<\/script/gi, "<\\\\/script>");
 
-  // Return Astro page (single outer template literal)
   return `---
 const siteUrl = "${siteUrl}";
 const domain = "${domain}";
@@ -451,6 +445,7 @@ const jsonLd = ${JSON.stringify(safeJsonLd)};
 <html>
   <head>
     <meta charset="utf-8" />
+    ${bingMeta}
     <title>{domain}</title>
     <link rel="canonical" href="{siteUrl}" />
     <script type="application/ld+json" set:html={jsonLd}></script>
@@ -467,6 +462,7 @@ ${providerItemsHtml}
   </body>
 </html>`;
 }
+
 
 
 
