@@ -13,6 +13,12 @@ const ROOT = path.resolve(__dirname, "../..");
 const API_BASE = process.env.BUBBLE_BASE_URL ?? (() => {
   throw new Error("BUBBLE_BASE_URL is not defined");
 })();
+// Bing site verification codes per domain (add more as you verify new sites)
+const BING_VERIFY: Record<string, string> = {
+  "study-in--japan.com": "052EF10DBD33B0E77EB728844239AD59",
+  // "study-in--london.com": "PUT_YOURS_HERE"
+};
+
 
 /* 1. Types */
 interface StackProgram {
@@ -348,26 +354,121 @@ const jsonLd = JSON.stringify(jsonLdObj)
 
 
 function renderIndexPage(programs: StackProgram[], providers: StackProvider[], domain: string): string {
+  const siteUrl = `https://${domain}/`;
+
+    // NEW: pick the code for this domain
+  const bingMeta = BING_VERIFY[domain]
+    ? `<meta name="msvalidate.01" content="${BING_VERIFY[domain]}" />`
+    : "";
+
+  // Build HTML list items WITHOUT backticks to avoid nesting issues
+  const programItemsHtml = programs.map((p) => {
+    const prov = p.Program_provider as StackProvider;
+    return '<li><a href="/' + prov.Provider_slug + '/' + p.Program_slug + '/">' +
+           p.Program_name +
+           '</a> by <a href="/' + prov.Provider_slug + '/">' + prov.Provider_name + '</a></li>';
+  }).join('\n');
+
+  const providerItemsHtml = providers.map((prov) => {
+    return '<li><a href="/' + prov.Provider_slug + '/">' + prov.Provider_name + '</a></li>';
+  }).join('\n');
+
+  // Build ItemLists for JSON-LD
+  const programList = programs.map((p, i) => {
+    const prov = p.Program_provider as StackProvider;
+    return {
+      "@type": "ListItem",
+      position: i + 1,
+      url: `${siteUrl}${prov.Provider_slug}/${p.Program_slug}/`,
+      name: p.Program_name,
+      item: {
+        "@type": "EducationalOccupationalProgram",
+        name: p.Program_name,
+        provider: {
+          "@type": "CollegeOrUniversity",
+          name: prov.Provider_name,
+          url: `${siteUrl}${prov.Provider_slug}/`
+        }
+      }
+    };
+  });
+
+  const providerList = providers.map((prov, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    url: `${siteUrl}${prov.Provider_slug}/`,
+    name: prov.Provider_name,
+    item: {
+      "@type": "CollegeOrUniversity",
+      name: prov.Provider_name,
+      url: `${siteUrl}${prov.Provider_slug}/`
+    }
+  }));
+
+  // JSON-LD graph
+  const schema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      url: siteUrl,
+      name: domain,
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${siteUrl}?q={search_term_string}`,
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: "Programs",
+      itemListElement: programList
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: "Providers",
+      itemListElement: providerList
+    }
+  ];
+
+  // Safe JSON-LD string
+  const safeJsonLd = JSON.stringify(schema)
+    .replace(/</g, "\\u003C")
+    .replace(/>/g, "\\u003E")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029")
+    .replace(/<\/script/gi, "<\\\\/script>");
+
+  // Return Astro page (single outer template literal)
   return `---
+const siteUrl = "${siteUrl}";
+const domain = "${domain}";
+const jsonLd = ${JSON.stringify(safeJsonLd)};
 ---
 <!DOCTYPE html>
 <html>
-  <head><meta charset="utf-8" /><title>${domain}</title></head>
+  <head>
+    <meta charset="utf-8" />
+    <title>{domain}</title>
+    <link rel="canonical" href="{siteUrl}" />
+    <script type="application/ld+json" set:html={jsonLd}></script>
+  </head>
   <body>
     <h1>Programs</h1>
     <ul>
-      ${programs.map((p) => {
-        const provider = p.Program_provider as StackProvider;
-        return `<li><a href="/${provider.Provider_slug}/${p.Program_slug}/">${p.Program_name}</a> by <a href="/${provider.Provider_slug}/">${provider.Provider_name}</a></li>`;
-      }).join("\n")}
+${programItemsHtml}
     </ul>
     <h1>Providers</h1>
     <ul>
-      ${providers.map((p) => `<li><a href="/${p.Provider_slug}/">${p.Provider_name}</a></li>`).join("\n")}
+${providerItemsHtml}
     </ul>
   </body>
 </html>`;
 }
+
+
 
 /* 5. Main */
 (async () => {
