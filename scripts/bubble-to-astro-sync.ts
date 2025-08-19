@@ -217,22 +217,21 @@ function renderProgramPage(program: StackProgram): string {
     .join("\n");
 
   const instanceLis = (program.Program_CourseInstance ?? [])
-  .map(ci => {
-    if (typeof ci === "string") return `<li>[${ci}]</li>`;
-    const mode = ci.Program_courseInstance_courseMode || `[${ci._id}]`;
-    return `<li>${mode}</li>`;
-  })
-  .join("\n");
+    .map(ci => {
+      if (typeof ci === "string") return `<li>[${ci}]</li>`;
+      const mode = ci.Program_courseInstance_courseMode || `[${ci._id}]`;
+      return `<li>${mode}</li>`;
+    })
+    .join("\n");
 
-    // ✅ Build absolute canonical URL
+  // ✅ Build absolute canonical URL
   const domain = (provider?.Provider_CanonicalDomainEN ?? [])
-    .map(d => typeof d === "string" ? d : d.Domain)
+    .map(d => (typeof d === "string" ? d : d.Domain))
     .find(Boolean);
 
   const canonicalUrl = domain
     ? `https://${domain}/${provider?.Provider_slug}/${program.Program_slug}/`
     : `/${provider?.Provider_slug}/${program.Program_slug}/`;
-
 
   const offers = (program.Program_offer ?? [])
     .map(l => (typeof l === "string" ? `[${l}]` : l.Offer_description ?? `[${l._id}]`))
@@ -242,14 +241,14 @@ function renderProgramPage(program: StackProgram): string {
 /* ⚠️ AUTO-GENERATED — DO NOT EDIT BY HAND. */
 const program = ${JSON.stringify(program, null, 2)};
 const provider = program.Program_provider;
-const canonicalUrl = "${canonicalUrl}"; // ✅ inject the absolute URL here
+const canonicalUrl = "${canonicalUrl}";
 
 // JSON-LD schema builder (runs inside Astro)
 const schema = {
   "@context": "https://schema.org",
   "@type": "EducationalOccupationalProgram",
-  "@id": canonicalUrl,                // ← add
-  "mainEntityOfPage": canonicalUrl,   // ← add
+  "@id": canonicalUrl,
+  "mainEntityOfPage": canonicalUrl,
   "name": program.Program_name,
   "description": program.Program_description,
   "programType": program.Program_programType || undefined,
@@ -282,24 +281,32 @@ const schema = {
 
 // strip undefined keys so the JSON-LD is clean
 const clean = (obj) => JSON.parse(JSON.stringify(obj, (_k, v) => (v === undefined ? undefined : v)));
+
+// ✅ SAFELY SERIALIZE JSON-LD FOR INLINE SCRIPT
+const jsonLdObj = clean(schema);
+const jsonLd = JSON.stringify(jsonLdObj)
+  .replace(/</g, '\\u003C')
+  .replace(/>/g, '\\u003E')
+  .replace(/&/g, '\\u0026')
+  .replace(/\\u2028/g, '\\\\u2028')
+  .replace(/\\u2029/g, '\\\\u2029')
+  .replace(/<\\/script/gi, '<\\\\/script');
 ---
 <!DOCTYPE html>
 <html>
-   <head>
+  <head>
     <meta charset="utf-8" />
     <title>{program.Program_name}</title>
     <link rel="canonical" href="${canonicalUrl}" />
-    <script type="application/ld+json">
-      {JSON.stringify(clean(schema))}
-    </script>
+    <script type="application/ld+json" set:html={jsonLd}></script>
   </head>
   <body>
     <h1>{program.Program_name}</h1>
     <p>{program.Program_description}</p>
     <p><strong>Disciplines:</strong></p>
-      <ul>
-        ${disciplines || "<li>None listed</li>"}
-      </ul>
+    <ul>
+      ${disciplines || "<li>None listed</li>"}
+    </ul>
     <p><strong>Slug:</strong> {program.Program_slug}</p>
     <p><strong>Credential:</strong> {program.Program_educationalCredentialAwarded}</p>
     <p><strong>Level:</strong> {program.Program_educationalLevel}</p>
@@ -307,27 +314,26 @@ const clean = (obj) => JSON.parse(JSON.stringify(obj, (_k, v) => (v === undefine
     <p><strong>Program Type:</strong> {program.Program_programType}</p>
     <p><strong>Time to Complete:</strong> {program.Program_timeToComplete}</p>
     <p><strong>Educational Prerequisites:</strong></p>
-      <ul>
-        ${prerequisites || "<li>None listed</li>"}
-      </ul>
+    <ul>
+      ${prerequisites || "<li>None listed</li>"}
+    </ul>
     <p><strong>Languages:</strong> ${languages}</p>
     <p><strong>Occupational Categories:</strong> ${occupations}</p>
     <p><strong>Program URL:</strong> <a href="{program.Program_url}">{program.Program_url}</a></p>
-    <p><strong>sameAs(URL):</strong> </p>
+    <p><strong>sameAs(URL):</strong></p>
     <ul>
-        ${sameAses || "<li>None listed</li>"}
+      ${sameAses || "<li>None listed</li>"}
     </ul>
     <p><strong>subjectOf:</strong> ${subjectofs}</p>
 
-    <p><strong>Instances:</strong> </p>
-      <ul>
-        ${instanceLis || "<li>None listed</li>"}
-      </ul>
-
-
-    <p><strong>Offers:</strong> </p>
+    <p><strong>Instances:</strong></p>
     <ul>
-        ${offers || "<li>None listed</li>"}
+      ${instanceLis || "<li>None listed</li>"}
+    </ul>
+
+    <p><strong>Offers:</strong></p>
+    <ul>
+      ${offers || "<li>None listed</li>"}
     </ul>
 
     <hr />
@@ -338,6 +344,7 @@ const clean = (obj) => JSON.parse(JSON.stringify(obj, (_k, v) => (v === undefine
   </body>
 </html>`;
 }
+
 
 
 function renderIndexPage(programs: StackProgram[], providers: StackProvider[], domain: string): string {
