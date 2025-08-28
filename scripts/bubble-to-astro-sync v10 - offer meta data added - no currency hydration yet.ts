@@ -78,14 +78,6 @@ interface StackProgramInstance {
   Program_courseInstance_courseMode: string;
 }
 
-interface StackCurrency {
-  _id: string;
-  Currency_code?: string; // e.g. "USD"
-  Currency_name?: string; // e.g. "US Dollar"
-  Code?: string;          // fallback
-  Name?: string;          // fallback
-}
-
 interface StackProgramOffer {
   _id: string;
   Offer_description: string;
@@ -93,8 +85,8 @@ interface StackProgramOffer {
   Offer_program?: string | StackProgram;
   /** Price value as number or text (Bubble may return numeric text) */
   Offer_price?: number | string;
-  /** May be a code string (e.g., "JPY") or a Currency object/id to hydrate */
-  Offer_priceCurrency?: string | StackCurrency;
+  /** e.g. "USD", "JPY", "CHF" */
+  Offer_priceCurrency?: string;
   /** ISO 8601 date string e.g. "2025-12-31" */
   Offer_validThrough?: string;
 }
@@ -177,18 +169,6 @@ async function fetchOffer(id: string): Promise<StackProgramOffer | null> {
   }
 }
 
-async function fetchCurrency(id: string): Promise<StackCurrency | null> {
-  try {
-    // Datatype name is exactly "Currency"
-    const data = await fetchJSON<{ response: StackCurrency }>(
-      `${API_BASE}/Currency/${id}`
-    );
-    return data.response;
-  } catch {
-    return null;
-  }
-}
-
 async function fetchOccupation(id: string): Promise<StackOccupation | null> {
   try {
     const data = await fetchJSON<{ response: StackOccupation }>(
@@ -211,15 +191,7 @@ async function fetchSubjectOf(id: string): Promise<StackSubjectOf | null> {
   }
 }
 
-/* 4. Helpers */
-
-function getCurrencyCode(cur: string | StackCurrency | undefined): string | undefined {
-  if (!cur) return undefined;
-  if (typeof cur === "string") return cur;
-  return cur.Currency_code || cur.Code || cur.Currency_name || cur.Name || undefined;
-}
-
-/* 5. Renderers */
+/* 4. Renderers */
 
 function renderProgramPage(program: StackProgram): string {
   const provider = program.Program_provider as StackProvider;
@@ -269,7 +241,7 @@ function renderProgramPage(program: StackProgram): string {
     ? `https://${domain}/${provider?.Provider_slug}/${program.Program_slug}/`
     : `/${provider?.Provider_slug}/${program.Program_slug}/`;
 
-  // Offers — detailed list items with hydrated currency
+  // Offers — render detailed list items
   const offersLis = (program.Program_offer ?? []).map(o => {
     if (typeof o === "string") {
       return `<li>[Offer ${o}]</li>`;
@@ -279,9 +251,9 @@ function renderProgramPage(program: StackProgram): string {
       o.Offer_price !== undefined && o.Offer_price !== null && o.Offer_price !== ""
         ? `${o.Offer_price}`
         : "";
-    const currencyCode = getCurrencyCode(o.Offer_priceCurrency);
+    const currency = o.Offer_priceCurrency ? `${o.Offer_priceCurrency}` : "";
     const priceBlock =
-      price && currencyCode ? `${price} ${currencyCode}` : price || currencyCode || "";
+      price && currency ? `${price} ${currency}` : price || currency || "";
     const valid = o.Offer_validThrough ? ` (valid through ${o.Offer_validThrough})` : "";
     return `<li>${[desc, priceBlock].filter(Boolean).join(" — ")}${valid}</li>`;
   }).join("\n");
@@ -328,7 +300,7 @@ const schema = {
           "@type": "Offer",
           "description": o.Offer_description || undefined,
           "price": o.Offer_price ?? undefined,
-          "priceCurrency": ((${getCurrencyCode}).call(null, o.Offer_priceCurrency)) || undefined,
+          "priceCurrency": o.Offer_priceCurrency || undefined,
           "validThrough": o.Offer_validThrough || undefined
         }
   )
@@ -403,7 +375,7 @@ const jsonLd = JSON.stringify(jsonLdObj)
 function renderIndexPage(programs: StackProgram[], providers: StackProvider[], domain: string): string {
   const siteUrl = `https://${domain}/`;
 
-  // 🔐 Bing verification codes
+  // 🔐 Bing verification codes (make sure the domain key matches exactly)
   const BING_VERIFY: Record<string, string> = {
     "study-in--japan.com": "052EF10DBD33B0E77EB728844239AD59",
     // "study-in--london.com": "PUT_YOURS_HERE"
@@ -412,6 +384,7 @@ function renderIndexPage(programs: StackProgram[], providers: StackProvider[], d
     ? `<meta name="msvalidate.01" content="${BING_VERIFY[domain]}" />`
     : "";
 
+  // Build HTML lists (avoid nested template strings)
   const programItemsHtml = programs.map(p => {
     const prov = p.Program_provider as StackProvider;
     return '<li><a href="/' + prov.Provider_slug + '/' + p.Program_slug + '/">' +
@@ -423,6 +396,7 @@ function renderIndexPage(programs: StackProgram[], providers: StackProvider[], d
     return '<li><a href="/' + prov.Provider_slug + '/">' + prov.Provider_name + '</a></li>';
   }).join('\n');
 
+  // JSON-LD (WebSite + ItemLists)
   const programList = programs.map((p, i) => {
     const prov = p.Program_provider as StackProvider;
     return {
@@ -512,7 +486,7 @@ ${providerItemsHtml}
 </html>`;
 }
 
-/* 6. Main */
+/* 5. Main */
 (async () => {
   const allowedDomains = ["study-in--japan.com", "study-in--london.com"];
   const programs = await fetchAllPrograms();
@@ -583,21 +557,14 @@ ${providerItemsHtml}
       })
     );
 
-    // Hydrate offers (including Currency)
+    // Hydrate offers (now includes price, currency, validThrough, etc.)
     program.Program_offer = await Promise.all(
       (program.Program_offer ?? []).map(async entry => {
-        const offer = typeof entry === "string" ? await fetchOffer(entry) : entry;
-        if (!offer) return entry;
-
-        // Hydrate Offer_priceCurrency if it's an id string
-        if (offer.Offer_priceCurrency && typeof offer.Offer_priceCurrency === "string") {
-          const currencyObj = await fetchCurrency(offer.Offer_priceCurrency);
-          if (currencyObj) {
-            offer.Offer_priceCurrency = currencyObj;
-          }
+        if (typeof entry === "string") {
+          const off = await fetchOffer(entry);
+          return off ?? entry;
         }
-
-        return offer;
+        return entry;
       })
     );
 
