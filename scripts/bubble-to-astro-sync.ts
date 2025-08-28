@@ -82,20 +82,20 @@ interface StackProgramInstance {
 interface StackCurrency {
   _id: string;
   Name?: string;    // e.g., "US Dollar"
-  Code?: string;    // e.g., "USD" (preferred for JSON-LD priceCurrency)
+  Code?: string;    // e.g., "USD"
   Country?: string; // e.g., "United States"
 }
 
 interface StackProgramOffer {
   _id: string;
   Offer_description: string;
-  /** Relation back to the Program (id or hydrated object) */
   Offer_program?: string | StackProgram;
-  /** Price value as number or text (Bubble may return numeric text) */
   Offer_price?: number | string;
-  /** Can be a plain code string ("JPY") or a Currency object/id to hydrate */
+
+  /** IMPORTANT: Bubble field may be Offer_priceCurrency or Offer_PriceCurrency */
   Offer_priceCurrency?: string | StackCurrency;
-  /** ISO 8601 date string e.g. "2025-12-31" */
+  Offer_PriceCurrency?: string | StackCurrency;
+
   Offer_validThrough?: string;
 }
 
@@ -213,11 +213,32 @@ async function fetchSubjectOf(id: string): Promise<StackSubjectOf | null> {
 
 /* 4. Helpers */
 
+function isBubbleIdLike(s: string): boolean {
+  // Bubble IDs typically look like "1700163105998x876875505638910000"
+  return /\d{10,}x[0-9a-z]+/i.test(s);
+}
+
 function getCurrencyCode(cur: string | StackCurrency | undefined): string | undefined {
   if (!cur) return undefined;
-  if (typeof cur === "string") return cur; // Already a code string (or id). We trust code strings.
-  // Prefer ISO-like Code, then fallbacks for visibility
+  if (typeof cur === "string") {
+    // If it's an all-caps 3-letter code (ISO), use it; if it looks like an ID, drop it.
+    if (/^[A-Z]{3}$/.test(cur)) return cur;
+    if (isBubbleIdLike(cur)) return undefined;
+    return cur; // fallback (e.g., "Usd" or custom text)
+  }
+  // Prefer proper code, fall back to other fields (better than leaking ids)
   return cur.Code || cur.Name || cur.Country || undefined;
+}
+
+function currencyFromOffer(offer: StackProgramOffer): string | StackCurrency | undefined {
+  // normalize: prefer the lower-cased field, but accept either
+  return offer.Offer_priceCurrency ?? offer.Offer_PriceCurrency;
+}
+
+function setCurrencyOnOffer(offer: StackProgramOffer, v: string | StackCurrency) {
+  // keep canonical field populated; also mirror to the alt field to avoid surprises
+  offer.Offer_priceCurrency = v;
+  offer.Offer_PriceCurrency = v;
 }
 
 /* 5. Renderers */
@@ -280,7 +301,7 @@ function renderProgramPage(program: StackProgram): string {
       o.Offer_price !== undefined && o.Offer_price !== null && o.Offer_price !== ""
         ? `${o.Offer_price}`
         : "";
-    const currencyCode = getCurrencyCode(o.Offer_priceCurrency);
+    const currencyCode = getCurrencyCode(currencyFromOffer(o));
     const priceBlock =
       price && currencyCode ? `${price} ${currencyCode}` : price || currencyCode || "";
     const valid = o.Offer_validThrough ? ` (valid through ${o.Offer_validThrough})` : "";
@@ -329,11 +350,17 @@ const schema = {
           "@type": "Offer",
           "description": o.Offer_description || undefined,
           "price": o.Offer_price ?? undefined,
-          // Inline logic here; do not depend on outer helpers within Astro frontmatter:
-          "priceCurrency":
-            (typeof o.Offer_priceCurrency === "string"
-              ? o.Offer_priceCurrency
-              : (o.Offer_priceCurrency?.Code || o.Offer_priceCurrency?.Name || o.Offer_priceCurrency?.Country)) || undefined,
+          // DO NOT output Bubble IDs: only an ISO-like code or sensible text
+          "priceCurrency": (() => {
+            const cur = ${currencyFromOffer.toString()}(o);
+            if (!cur) return undefined;
+            if (typeof cur === "string") {
+              if (/^[A-Z]{3}$/.test(cur)) return cur;
+              if (${isBubbleIdLike.toString()}(cur)) return undefined;
+              return cur;
+            }
+            return cur.Code || cur.Name || cur.Country || undefined;
+          })(),
           "validThrough": o.Offer_validThrough || undefined
         }
   )
@@ -596,12 +623,30 @@ ${providerItemsHtml}
         const offer = typeof entry === "string" ? await fetchOffer(entry) : entry;
         if (!offer) return entry;
 
-        // Hydrate Offer_priceCurrency if it's an id string
-        if (offer.Offer_priceCurrency && typeof offer.Offer_priceCurrency === "string") {
-          const currencyObj = await fetchCurrency(offer.Offer_priceCurrency);
-          if (currencyObj) {
-            offer.Offer_priceCurrency = currencyObj;
+        // Normalize source field (Offer_priceCurrency vs Offer_PriceCurrency)
+        const rawCur = currencyFromOffer(offer);
+        if (rawCur && typeof rawCur === "string") {
+          if (/^[A-Z]{3}$/.test(rawCur)) {
+            // It's already a currency code like "JPY"
+            setCurrencyOnOffer(offer, rawCur);
+          } else if (isBubbleIdLike(rawCur)) {
+            // Looks like a Bubble ID → fetch Currency object
+            const currencyObj = await fetchCurrency(rawCur);
+            if (currencyObj) {
+              setCurrencyOnOffer(offer, currencyObj);
+              console.log(`💱 Hydrated currency for offer ${offer._id}: ${currencyObj.Code ?? currencyObj.Name ?? currencyObj.Country ?? currencyObj._id}`);
+            } else {
+              console.warn(`⚠️ Currency not found for id: ${rawCur} (offer ${offer._id})`);
+              // Keep original string but rendering/JSON-LD will avoid leaking IDs.
+              setCurrencyOnOffer(offer, rawCur);
+            }
+          } else {
+            // Some other string (e.g., "Yen") — keep as-is
+            setCurrencyOnOffer(offer, rawCur);
           }
+        } else if (rawCur && typeof rawCur === "object") {
+          // Already hydrated
+          setCurrencyOnOffer(offer, rawCur);
         }
 
         return offer;
