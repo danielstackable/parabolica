@@ -14,8 +14,6 @@ const API_BASE = process.env.BUBBLE_BASE_URL ?? (() => {
   throw new Error("BUBBLE_BASE_URL is not defined");
 })();
 
-
-
 /* 1. Types */
 interface StackProgram {
   _id: string;
@@ -83,6 +81,14 @@ interface StackProgramInstance {
 interface StackProgramOffer {
   _id: string;
   Offer_description: string;
+  /** Relation back to the Program (id or hydrated object) */
+  Offer_program?: string | StackProgram;
+  /** Price value as number or text (Bubble may return numeric text) */
+  Offer_price?: number | string;
+  /** e.g. "USD", "JPY", "CHF" */
+  Offer_priceCurrency?: string;
+  /** ISO 8601 date string e.g. "2025-12-31" */
+  Offer_validThrough?: string;
 }
 
 /* 2. Utilities */
@@ -235,9 +241,22 @@ function renderProgramPage(program: StackProgram): string {
     ? `https://${domain}/${provider?.Provider_slug}/${program.Program_slug}/`
     : `/${provider?.Provider_slug}/${program.Program_slug}/`;
 
-  const offers = (program.Program_offer ?? [])
-    .map(l => (typeof l === "string" ? `[${l}]` : l.Offer_description ?? `[${l._id}]`))
-    .join(", ");
+  // Offers — render detailed list items
+  const offersLis = (program.Program_offer ?? []).map(o => {
+    if (typeof o === "string") {
+      return `<li>[Offer ${o}]</li>`;
+    }
+    const desc = o.Offer_description ?? "";
+    const price =
+      o.Offer_price !== undefined && o.Offer_price !== null && o.Offer_price !== ""
+        ? `${o.Offer_price}`
+        : "";
+    const currency = o.Offer_priceCurrency ? `${o.Offer_priceCurrency}` : "";
+    const priceBlock =
+      price && currency ? `${price} ${currency}` : price || currency || "";
+    const valid = o.Offer_validThrough ? ` (valid through ${o.Offer_validThrough})` : "";
+    return `<li>${[desc, priceBlock].filter(Boolean).join(" — ")}${valid}</li>`;
+  }).join("\n");
 
   return `---
 /* ⚠️ AUTO-GENERATED — DO NOT EDIT BY HAND. */
@@ -274,10 +293,16 @@ const schema = {
       "streetAddress": provider?.Provider_streetAddress || undefined
     }
   },
-  "offers": (program.Program_offer ?? []).map(o =>
+  "offers": (program.Program_offer ?? []).map(o => 
     typeof o === "string"
       ? { "@type": "Offer", "@id": o }
-      : { "@type": "Offer", "description": o.Offer_description }
+      : {
+          "@type": "Offer",
+          "description": o.Offer_description || undefined,
+          "price": o.Offer_price ?? undefined,
+          "priceCurrency": o.Offer_priceCurrency || undefined,
+          "validThrough": o.Offer_validThrough || undefined
+        }
   )
 };
 
@@ -335,7 +360,7 @@ const jsonLd = JSON.stringify(jsonLdObj)
 
     <p><strong>Offers:</strong></p>
     <ul>
-      ${offers || "<li>None listed</li>"}
+      ${offersLis || "<li>None listed</li>"}
     </ul>
 
     <hr />
@@ -346,8 +371,6 @@ const jsonLd = JSON.stringify(jsonLdObj)
   </body>
 </html>`;
 }
-
-
 
 function renderIndexPage(programs: StackProgram[], providers: StackProvider[], domain: string): string {
   const siteUrl = `https://${domain}/`;
@@ -373,7 +396,7 @@ function renderIndexPage(programs: StackProgram[], providers: StackProvider[], d
     return '<li><a href="/' + prov.Provider_slug + '/">' + prov.Provider_name + '</a></li>';
   }).join('\n');
 
-  // JSON‑LD (WebSite + ItemLists)
+  // JSON-LD (WebSite + ItemLists)
   const programList = programs.map((p, i) => {
     const prov = p.Program_provider as StackProvider;
     return {
@@ -463,9 +486,6 @@ ${providerItemsHtml}
 </html>`;
 }
 
-
-
-
 /* 5. Main */
 (async () => {
   const allowedDomains = ["study-in--japan.com", "study-in--london.com"];
@@ -503,7 +523,7 @@ ${providerItemsHtml}
       })
     );
 
-     // Hydrate subjectofs
+    // Hydrate subjectofs
     program.Program_subjectOf = await Promise.all(
       (program.Program_subjectOf ?? []).map(async (entry) => {
         if (typeof entry === "string") {
@@ -537,8 +557,7 @@ ${providerItemsHtml}
       })
     );
 
-
-// Hydrate offers
+    // Hydrate offers (now includes price, currency, validThrough, etc.)
     program.Program_offer = await Promise.all(
       (program.Program_offer ?? []).map(async entry => {
         if (typeof entry === "string") {
@@ -548,7 +567,6 @@ ${providerItemsHtml}
         return entry;
       })
     );
-
 
     const canonicalDomains: string[] = (provider.Provider_CanonicalDomainEN ?? [])
       .map((entry) => typeof entry === "string" ? `[${entry}]` : entry.Domain ?? `[${entry._id}]`);
