@@ -78,6 +78,16 @@ async function fetchOffer(id) {
         return null;
     }
 }
+async function fetchCurrency(id) {
+    try {
+        // Datatype name is exactly "Currency"
+        const data = await fetchJSON(`${API_BASE}/Currency/${id}`);
+        return data.response;
+    }
+    catch {
+        return null;
+    }
+}
 async function fetchOccupation(id) {
     try {
         const data = await fetchJSON(`${API_BASE}/Stack_Occupation/${id}`);
@@ -96,7 +106,35 @@ async function fetchSubjectOf(id) {
         return null;
     }
 }
-/* 4. Renderers */
+/* 4. Helpers */
+function isBubbleIdLike(s) {
+    // Bubble IDs typically look like "1700163105998x876875505638910000"
+    return /\d{10,}x[0-9a-z]+/i.test(s);
+}
+function getCurrencyCode(cur) {
+    if (!cur)
+        return undefined;
+    if (typeof cur === "string") {
+        // If it's an all-caps 3-letter code (ISO), use it; if it looks like an ID, drop it.
+        if (/^[A-Z]{3}$/.test(cur))
+            return cur;
+        if (isBubbleIdLike(cur))
+            return undefined;
+        return cur; // fallback (e.g., "Usd" or custom text)
+    }
+    // Prefer proper code, fall back to other fields (better than leaking ids)
+    return cur.Code || cur.Name || cur.Country || undefined;
+}
+function currencyFromOffer(offer) {
+    // normalize: prefer the lower-cased field, but accept either
+    return offer.Offer_priceCurrency ?? offer.Offer_PriceCurrency;
+}
+function setCurrencyOnOffer(offer, v) {
+    // keep canonical field populated; also mirror to the alt field to avoid surprises
+    offer.Offer_priceCurrency = v;
+    offer.Offer_PriceCurrency = v;
+}
+/* 5. Renderers */
 function renderProgramPage(program) {
     const provider = program.Program_provider;
     const languages = (program.Program_inLanguage ?? [])
@@ -130,26 +168,37 @@ function renderProgramPage(program) {
         .join("\n");
     // ✅ Build absolute canonical URL
     const domain = (provider?.Provider_CanonicalDomainEN ?? [])
-        .map(d => typeof d === "string" ? d : d.Domain)
+        .map(d => (typeof d === "string" ? d : d.Domain))
         .find(Boolean);
     const canonicalUrl = domain
         ? `https://${domain}/${provider?.Provider_slug}/${program.Program_slug}/`
         : `/${provider?.Provider_slug}/${program.Program_slug}/`;
-    const offers = (program.Program_offer ?? [])
-        .map(l => (typeof l === "string" ? `[${l}]` : l.Offer_description ?? `[${l._id}]`))
-        .join(", ");
+    // Offers — detailed list items with hydrated currency
+    const offersLis = (program.Program_offer ?? []).map(o => {
+        if (typeof o === "string") {
+            return `<li>[Offer ${o}]</li>`;
+        }
+        const desc = o.Offer_description ?? "";
+        const price = o.Offer_price !== undefined && o.Offer_price !== null && o.Offer_price !== ""
+            ? `${o.Offer_price}`
+            : "";
+        const currencyCode = getCurrencyCode(currencyFromOffer(o));
+        const priceBlock = price && currencyCode ? `${price} ${currencyCode}` : price || currencyCode || "";
+        const valid = o.Offer_validThrough ? ` (valid through ${o.Offer_validThrough})` : "";
+        return `<li>${[desc, priceBlock].filter(Boolean).join(" — ")}${valid}</li>`;
+    }).join("\n");
     return `---
 /* ⚠️ AUTO-GENERATED — DO NOT EDIT BY HAND. */
 const program = ${JSON.stringify(program, null, 2)};
 const provider = program.Program_provider;
-const canonicalUrl = "${canonicalUrl}"; // ✅ inject the absolute URL here
+const canonicalUrl = "${canonicalUrl}";
 
 // JSON-LD schema builder (runs inside Astro)
 const schema = {
   "@context": "https://schema.org",
   "@type": "EducationalOccupationalProgram",
-  "@id": canonicalUrl,                // ← add
-  "mainEntityOfPage": canonicalUrl,   // ← add
+  "@id": canonicalUrl,
+  "mainEntityOfPage": canonicalUrl,
   "name": program.Program_name,
   "description": program.Program_description,
   "programType": program.Program_programType || undefined,
@@ -173,33 +222,57 @@ const schema = {
       "streetAddress": provider?.Provider_streetAddress || undefined
     }
   },
-  "offers": (program.Program_offer ?? []).map(o =>
+  "offers": (program.Program_offer ?? []).map(o => 
     typeof o === "string"
       ? { "@type": "Offer", "@id": o }
-      : { "@type": "Offer", "description": o.Offer_description }
+      : {
+          "@type": "Offer",
+          "description": o.Offer_description || undefined,
+          "price": o.Offer_price ?? undefined,
+          // DO NOT output Bubble IDs: only an ISO-like code or sensible text
+          "priceCurrency": (() => {
+            const cur = ${currencyFromOffer.toString()}(o);
+            if (!cur) return undefined;
+            if (typeof cur === "string") {
+              if (/^[A-Z]{3}$/.test(cur)) return cur;
+              if (${isBubbleIdLike.toString()}(cur)) return undefined;
+              return cur;
+            }
+            return cur.Code || cur.Name || cur.Country || undefined;
+          })(),
+          "validThrough": o.Offer_validThrough || undefined
+        }
   )
 };
 
 // strip undefined keys so the JSON-LD is clean
 const clean = (obj) => JSON.parse(JSON.stringify(obj, (_k, v) => (v === undefined ? undefined : v)));
+
+// ✅ SAFELY SERIALIZE JSON-LD FOR INLINE SCRIPT
+const jsonLdObj = clean(schema);
+const jsonLd = JSON.stringify(jsonLdObj)
+  .replace(/</g, '\\u003C')
+  .replace(/>/g, '\\u003E')
+  .replace(/&/g, '\\u0026')
+  .replace(/\\u2028/g, '\\\\u2028')
+  .replace(/\\u2029/g, '\\\\u2029')
+  .replace(/<\\/script/gi, '<\\\\/script');
 ---
 <!DOCTYPE html>
 <html>
-   <head>
+  <head>
     <meta charset="utf-8" />
     <title>{program.Program_name}</title>
     <link rel="canonical" href="${canonicalUrl}" />
-    <script type="application/ld+json">
-      {JSON.stringify(clean(schema))}
-    </script>
+    <script type="application/ld+json" set:html={jsonLd}></script>
   </head>
   <body>
     <h1>{program.Program_name}</h1>
     <p>{program.Program_description}</p>
     <p><strong>Disciplines:</strong></p>
-      <ul>
-        ${disciplines || "<li>None listed</li>"}
-      </ul>
+    <ul>
+      ${disciplines || "<li>None listed</li>"}
+    </ul>
     <p><strong>Slug:</strong> {program.Program_slug}</p>
     <p><strong>Credential:</strong> {program.Program_educationalCredentialAwarded}</p>
     <p><strong>Level:</strong> {program.Program_educationalLevel}</p>
@@ -207,27 +280,26 @@ const clean = (obj) => JSON.parse(JSON.stringify(obj, (_k, v) => (v === undefine
     <p><strong>Program Type:</strong> {program.Program_programType}</p>
     <p><strong>Time to Complete:</strong> {program.Program_timeToComplete}</p>
     <p><strong>Educational Prerequisites:</strong></p>
-      <ul>
-        ${prerequisites || "<li>None listed</li>"}
-      </ul>
+    <ul>
+      ${prerequisites || "<li>None listed</li>"}
+    </ul>
     <p><strong>Languages:</strong> ${languages}</p>
     <p><strong>Occupational Categories:</strong> ${occupations}</p>
     <p><strong>Program URL:</strong> <a href="{program.Program_url}">{program.Program_url}</a></p>
-    <p><strong>sameAs(URL):</strong> </p>
+    <p><strong>sameAs(URL):</strong></p>
     <ul>
-        ${sameAses || "<li>None listed</li>"}
+      ${sameAses || "<li>None listed</li>"}
     </ul>
     <p><strong>subjectOf:</strong> ${subjectofs}</p>
 
-    <p><strong>Instances:</strong> </p>
-      <ul>
-        ${instanceLis || "<li>None listed</li>"}
-      </ul>
-
-
-    <p><strong>Offers:</strong> </p>
+    <p><strong>Instances:</strong></p>
     <ul>
-        ${offers || "<li>None listed</li>"}
+      ${instanceLis || "<li>None listed</li>"}
+    </ul>
+
+    <p><strong>Offers:</strong></p>
+    <ul>
+      ${offersLis || "<li>None listed</li>"}
     </ul>
 
     <hr />
@@ -239,27 +311,111 @@ const clean = (obj) => JSON.parse(JSON.stringify(obj, (_k, v) => (v === undefine
 </html>`;
 }
 function renderIndexPage(programs, providers, domain) {
+    const siteUrl = `https://${domain}/`;
+    // 🔐 Bing verification codes (make sure the domain key matches exactly)
+    const BING_VERIFY = {
+        "study-in--japan.com": "052EF10DBD33B0E77EB728844239AD59",
+        // "study-in--london.com": "PUT_YOURS_HERE"
+    };
+    const bingMeta = BING_VERIFY[domain]
+        ? `<meta name="msvalidate.01" content="${BING_VERIFY[domain]}" />`
+        : "";
+    // Build HTML lists (avoid nested template strings)
+    const programItemsHtml = programs.map(p => {
+        const prov = p.Program_provider;
+        return '<li><a href="/' + prov.Provider_slug + '/' + p.Program_slug + '/">' +
+            p.Program_name +
+            '</a> by <a href="/' + prov.Provider_slug + '/">' + prov.Provider_name + '</a></li>';
+    }).join('\n');
+    const providerItemsHtml = providers.map(prov => {
+        return '<li><a href="/' + prov.Provider_slug + '/">' + prov.Provider_name + '</a></li>';
+    }).join('\n');
+    // JSON-LD (WebSite + ItemLists)
+    const programList = programs.map((p, i) => {
+        const prov = p.Program_provider;
+        return {
+            "@type": "ListItem",
+            position: i + 1,
+            url: `${siteUrl}${prov.Provider_slug}/${p.Program_slug}/`,
+            name: p.Program_name,
+            item: {
+                "@type": "EducationalOccupationalProgram",
+                name: p.Program_name,
+                provider: {
+                    "@type": "CollegeOrUniversity",
+                    name: prov.Provider_name,
+                    url: `${siteUrl}${prov.Provider_slug}/`
+                }
+            }
+        };
+    });
+    const providerList = providers.map((prov, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: `${siteUrl}${prov.Provider_slug}/`,
+        name: prov.Provider_name,
+        item: {
+            "@type": "CollegeOrUniversity",
+            name: prov.Provider_name,
+            url: `${siteUrl}${prov.Provider_slug}/`
+        }
+    }));
+    const schema = [
+        {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            url: siteUrl,
+            name: domain,
+            potentialAction: {
+                "@type": "SearchAction",
+                target: `${siteUrl}?q={search_term_string}`,
+                "query-input": "required name=search_term_string"
+            }
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "Programs",
+            itemListElement: programList
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "Providers",
+            itemListElement: providerList
+        }
+    ];
+    const safeJsonLd = JSON.stringify(schema)
+        .replace(/</g, "\\u003C").replace(/>/g, "\\u003E").replace(/&/g, "\\u0026")
+        .replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029")
+        .replace(/<\/script/gi, "<\\\\/script>");
     return `---
+const siteUrl = "${siteUrl}";
+const domain = "${domain}";
+const jsonLd = ${JSON.stringify(safeJsonLd)};
 ---
 <!DOCTYPE html>
 <html>
-  <head><meta charset="utf-8" /><title>${domain}</title></head>
+  <head>
+    <meta charset="utf-8" />
+    ${bingMeta}
+    <title>{domain}</title>
+    <link rel="canonical" href="{siteUrl}" />
+    <script type="application/ld+json" set:html={jsonLd}></script>
+  </head>
   <body>
     <h1>Programs</h1>
     <ul>
-      ${programs.map((p) => {
-        const provider = p.Program_provider;
-        return `<li><a href="/${provider.Provider_slug}/${p.Program_slug}/">${p.Program_name}</a> by <a href="/${provider.Provider_slug}/">${provider.Provider_name}</a></li>`;
-    }).join("\n")}
+${programItemsHtml}
     </ul>
     <h1>Providers</h1>
     <ul>
-      ${providers.map((p) => `<li><a href="/${p.Provider_slug}/">${p.Provider_name}</a></li>`).join("\n")}
+${providerItemsHtml}
     </ul>
   </body>
 </html>`;
 }
-/* 5. Main */
+/* 6. Main */
 (async () => {
     const allowedDomains = ["study-in--japan.com", "study-in--london.com"];
     const programs = await fetchAllPrograms();
@@ -314,13 +470,41 @@ function renderIndexPage(programs, providers, domain) {
             }
             return entry;
         }));
-        // Hydrate offers
+        // Hydrate offers, including Currency
         program.Program_offer = await Promise.all((program.Program_offer ?? []).map(async (entry) => {
-            if (typeof entry === "string") {
-                const off = await fetchOffer(entry);
-                return off ?? entry;
+            const offer = typeof entry === "string" ? await fetchOffer(entry) : entry;
+            if (!offer)
+                return entry;
+            // Normalize source field (Offer_priceCurrency vs Offer_PriceCurrency)
+            const rawCur = currencyFromOffer(offer);
+            if (rawCur && typeof rawCur === "string") {
+                if (/^[A-Z]{3}$/.test(rawCur)) {
+                    // It's already a currency code like "JPY"
+                    setCurrencyOnOffer(offer, rawCur);
+                }
+                else if (isBubbleIdLike(rawCur)) {
+                    // Looks like a Bubble ID → fetch Currency object
+                    const currencyObj = await fetchCurrency(rawCur);
+                    if (currencyObj) {
+                        setCurrencyOnOffer(offer, currencyObj);
+                        console.log(`💱 Hydrated currency for offer ${offer._id}: ${currencyObj.Code ?? currencyObj.Name ?? currencyObj.Country ?? currencyObj._id}`);
+                    }
+                    else {
+                        console.warn(`⚠️ Currency not found for id: ${rawCur} (offer ${offer._id})`);
+                        // Keep original string but rendering/JSON-LD will avoid leaking IDs.
+                        setCurrencyOnOffer(offer, rawCur);
+                    }
+                }
+                else {
+                    // Some other string (e.g., "Yen") — keep as-is
+                    setCurrencyOnOffer(offer, rawCur);
+                }
             }
-            return entry;
+            else if (rawCur && typeof rawCur === "object") {
+                // Already hydrated
+                setCurrencyOnOffer(offer, rawCur);
+            }
+            return offer;
         }));
         const canonicalDomains = (provider.Provider_CanonicalDomainEN ?? [])
             .map((entry) => typeof entry === "string" ? `[${entry}]` : entry.Domain ?? `[${entry._id}]`);
