@@ -173,25 +173,48 @@ function renderProgramPage(program) {
     const canonicalUrl = domain
         ? `https://${domain}/${provider?.Provider_slug}/${program.Program_slug}/`
         : `/${provider?.Provider_slug}/${program.Program_slug}/`;
-    // Offers — detailed list items with hydrated currency
-    const offersLis = (program.Program_offer ?? []).map(o => {
-        if (typeof o === "string") {
+    // Offers — detailed list items with hydrated currency + name
+    // Offers — detailed list items with hydrated currency + name
+    const offersLis = (program.Program_offer ?? []).map((o) => {
+        if (typeof o === "string")
             return `<li>[Offer ${o}]</li>`;
-        }
-        const desc = o.Offer_description ?? "";
+        const name = o.Offer_name?.trim();
+        const desc = o.Offer_description?.trim();
         const price = o.Offer_price !== undefined && o.Offer_price !== null && o.Offer_price !== ""
-            ? `${o.Offer_price}`
+            ? String(o.Offer_price)
             : "";
+        // 👇 now compute currency code for the HTML too
         const currencyCode = getCurrencyCode(currencyFromOffer(o));
-        const priceBlock = price && currencyCode ? `${price} ${currencyCode}` : price || currencyCode || "";
+        const priceBlock = price && currencyCode
+            ? `${price} ${currencyCode}`
+            : (price || currencyCode || "");
         const valid = o.Offer_validThrough ? ` (valid through ${o.Offer_validThrough})` : "";
-        return `<li>${[desc, priceBlock].filter(Boolean).join(" — ")}${valid}</li>`;
+        // Order: Name — Description — Price/Currency
+        const parts = [name, desc, priceBlock].filter(Boolean);
+        return `<li>${parts.join(" — ")}${valid}</li>`;
     }).join("\n");
     return `---
 /* ⚠️ AUTO-GENERATED — DO NOT EDIT BY HAND. */
 const program = ${JSON.stringify(program, null, 2)};
 const provider = program.Program_provider;
 const canonicalUrl = "${canonicalUrl}";
+
+// Helper fns in PLAIN JS (no TS types) to avoid build errors
+function isIdLike(s) {
+  return typeof s === 'string' && /\\d{10,}x[0-9a-z]+/i.test(s);
+}
+function currencyFromOffer(offer) {
+  return offer.Offer_priceCurrency ?? offer.Offer_PriceCurrency;
+}
+function getCurrencyCode(cur) {
+  if (!cur) return undefined;
+  if (typeof cur === 'string') {
+    if (/^[A-Z]{3}$/.test(cur)) return cur;     // ISO like "JPY"
+    if (isIdLike(cur)) return undefined;        // looks like a Bubble ID → don't leak
+    return cur;                                 // fallback text like "Yen"
+  }
+  return cur.Code || cur.Name || cur.Country || undefined;
+}
 
 // JSON-LD schema builder (runs inside Astro)
 const schema = {
@@ -222,24 +245,15 @@ const schema = {
       "streetAddress": provider?.Provider_streetAddress || undefined
     }
   },
-  "offers": (program.Program_offer ?? []).map(o => 
+  "offers": (program.Program_offer ?? []).map(o =>
     typeof o === "string"
       ? { "@type": "Offer", "@id": o }
       : {
           "@type": "Offer",
+          "name": o.Offer_name || undefined,
           "description": o.Offer_description || undefined,
           "price": o.Offer_price ?? undefined,
-          // DO NOT output Bubble IDs: only an ISO-like code or sensible text
-          "priceCurrency": (() => {
-            const cur = ${currencyFromOffer.toString()}(o);
-            if (!cur) return undefined;
-            if (typeof cur === "string") {
-              if (/^[A-Z]{3}$/.test(cur)) return cur;
-              if (${isBubbleIdLike.toString()}(cur)) return undefined;
-              return cur;
-            }
-            return cur.Code || cur.Name || cur.Country || undefined;
-          })(),
+          "priceCurrency": getCurrencyCode(currencyFromOffer(o)),
           "validThrough": o.Offer_validThrough || undefined
         }
   )
@@ -269,27 +283,33 @@ const jsonLd = JSON.stringify(jsonLdObj)
   <body>
     <h1>{program.Program_name}</h1>
     <p>{program.Program_description}</p>
+
     <p><strong>Disciplines:</strong></p>
     <ul>
       ${disciplines || "<li>None listed</li>"}
     </ul>
+
     <p><strong>Slug:</strong> {program.Program_slug}</p>
     <p><strong>Credential:</strong> {program.Program_educationalCredentialAwarded}</p>
     <p><strong>Level:</strong> {program.Program_educationalLevel}</p>
     <p><strong>Mode:</strong> {program.Program_educationalProgramMode}</p>
     <p><strong>Program Type:</strong> {program.Program_programType}</p>
     <p><strong>Time to Complete:</strong> {program.Program_timeToComplete}</p>
+
     <p><strong>Educational Prerequisites:</strong></p>
     <ul>
       ${prerequisites || "<li>None listed</li>"}
     </ul>
+
     <p><strong>Languages:</strong> ${languages}</p>
     <p><strong>Occupational Categories:</strong> ${occupations}</p>
     <p><strong>Program URL:</strong> <a href="{program.Program_url}">{program.Program_url}</a></p>
+
     <p><strong>sameAs(URL):</strong></p>
     <ul>
       ${sameAses || "<li>None listed</li>"}
     </ul>
+
     <p><strong>subjectOf:</strong> ${subjectofs}</p>
 
     <p><strong>Instances:</strong></p>
