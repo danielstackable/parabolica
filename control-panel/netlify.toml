@@ -1,0 +1,13 @@
+[build]
+  publish = "control-panel/public"
+  functions = "control-panel/netlify/functions"
+  command = ""  # static site, no build step
+
+# (Optional) simple lock-down via Netlify password
+#[context.production.environment]
+#  NETLIFY_PASSWORD = "set-in-dashboard"
+
+# [[headers]]
+#   for = "/*"
+#   [headers.values]
+#   Basic-Auth = ":${NETLIFY_PASSWORD}"
