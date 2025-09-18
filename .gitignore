@@ -23,3 +23,14 @@ projects/*/.astro/
 # Mac / system
 .DS_Store
 Thumbs.db
+# OS
+.DS_Store
+
+# dependencies
+node_modules/
+
+# Astro/Vite caches
+**/.astro/
+**/.vite/
+**/dist/
+pnpm-lock.yaml
