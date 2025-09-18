@@ -1,0 +1,69 @@
+plugins = []
+
+[functions]
+
+[functions."*"]
+
+[build]
+publish = "/Users/danielmora/parabolica/projects/study-in--japan/public/projects/study-in--japan/dist"
+publishOrigin = "ui"
+commandOrigin = "ui"
+base = "/Users/danielmora/parabolica/projects/study-in--japan/public"
+command = "corepack enable && corepack prepare pnpm@9 --activate && pnpm -v && pnpm install --frozen-lockfile && pnpm --filter scripts run build:sync && pnpm --filter scripts run sync && pnpm --filter study-in--japan run build"
+
+[build.environment]
+NODE_VERSION = "20"
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[[headers]]
+for = "/*"
+
+[headers.values]
+X-Robots-Tag = "all"
+
+[[redirects]]
+from = "http://study-in--japan.com/*"
+to = "https://study-in--japan.com/:splat"
+status = 301.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "http://www.study-in--japan.com/*"
+to = "https://study-in--japan.com/:splat"
+status = 301.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
+from = "https://www.study-in--japan.com/*"
+to = "https://study-in--japan.com/:splat"
+status = 301.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
