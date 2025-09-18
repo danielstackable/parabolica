@@ -1,0 +1,51 @@
+name: Manual Astro Sync
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build & run Parabolica sync
+        env:
+          # Per your project context
+          BUBBLE_BASE_URL: https://stackable.club/version-test/api/1.1/obj
+          # Add any other envs your script expects:
+          # PROJECT_MAP: study-in--japan.com,study-in--london.com
+        run: |
+          pnpm --filter scripts run build:sync
+          pnpm --filter scripts run sync
+
+      - name: Commit changes (if any)
+        run: |
+          git config user.name "parabolica-bot"
+          git config user.email "parabolica-bot@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(sync): generate Astro pages [skip ci]"
+            git push
+          else
+            echo "No changes to commit"
+          fi

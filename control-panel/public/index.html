@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Parabolica — Sync & Deploy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root { --bg:#0b0b10; --card:#11121a; --fg:#e8e8f0; --accent:#7c5cff; }
+      html,body{height:100%}
+      body {
+        margin:0; background:radial-gradient(1200px 800px at 70% -10%, #1e1b31, #0b0b10);
+        color:var(--fg); font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        display:grid; place-items:center;
+      }
+      .card { background:var(--card); padding:2rem; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.35); width:min(520px, 92vw); }
+      h1 { margin:0 0 .75rem; font-size:1.25rem; letter-spacing:.3px; opacity:.9 }
+      p { margin:.25rem 0 1.25rem; opacity:.8 }
+      button {
+        appearance:none; border:0; border-radius:12px; padding:1rem 1.25rem; font-weight:600; cursor:pointer;
+        background:var(--accent); color:#fff; width:100%; font-size:1rem; transition:transform .05s ease, opacity .2s ease;
+      }
+      button:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+      .row { display:flex; gap:.5rem; align-items:center; margin-top:1rem; }
+      .dot { width:10px; height:10px; border-radius:50%; background:#3a3a4d; }
+      .dot.on { background:#2ecc71; }
+      .status { margin-top:1rem; min-height:1.8em; font-size:.95rem; }
+      a { color:#b5a7ff; text-decoration:underline; }
+      .meta { margin-top:1.25rem; font-size:.85rem; opacity:.7 }
+      .brand { display:flex; align-items:center; gap:.6rem; margin-bottom:1rem; opacity:.9 }
+      .logo { width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg, #7c5cff, #00d4ff); }
+      code { background:#1a1b26; padding:.1rem .35rem; border-radius:6px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="brand"><div class="logo"></div><strong>Parabolica Control Panel</strong></div>
+      <h1>Sync Bubble → Astro → Git</h1>
+      <p>Runs the Astro sync script, commits generated pages in <code>projects/</code>, and pushes. Netlify deploys on push.</p>
+      <button id="go">Run Sync & Push</button>
+      <div class="status" id="status" aria-live="polite"></div>
+      <div class="row">
+        <div class="dot" id="dot"></div><div id="hint">Waiting…</div>
+      </div>
+      <div class="meta">Workflow file: <code>/.github/workflows/manual-sync.yml</code></div>
+    </div>
+    <script>
+      const go = document.getElementById('go');
+      const status = document.getElementById('status');
+      const dot = document.getElementById('dot');
+      const hint = document.getElementById('hint');
+
+      async function trigger() {
+        go.disabled = true;
+        status.textContent = 'Triggering GitHub workflow…';
+        dot.classList.remove('on'); hint.textContent = 'Dispatching…';
+        try {
+          const res = await fetch('/.netlify/functions/trigger-sync', { method: 'POST' });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || res.statusText);
+          status.innerHTML = `Triggered! → <a target="_blank" rel="noreferrer" href="${data.workflow_url}">Open workflow runs</a>`;
+          dot.classList.add('on'); hint.textContent = 'Running in GitHub Actions';
+        } catch (e) {
+          status.textContent = 'Failed: ' + e.message;
+          hint.textContent = 'Error';
+        } finally {
+          go.disabled = false;
+        }
+      }
+
+      go.addEventListener('click', trigger);
+    </script>
+  </body>
+</html>
