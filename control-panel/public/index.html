@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Parabolica — Sync & Deploy</title>
+    <title>Parabolica — Deploy Now</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       :root { --bg:#0b0b10; --card:#11121a; --fg:#e8e8f0; --accent:#7c5cff; }
@@ -34,40 +34,38 @@
   <body>
     <div class="card">
       <div class="brand"><div class="logo"></div><strong>Parabolica Control Panel</strong></div>
-      <h1>Sync Bubble → Astro → Git</h1>
-      <p>Runs the Astro sync script, commits generated pages in <code>projects/</code>, and pushes. Netlify deploys on push.</p>
-      <button id="go">Run Sync & Push</button>
+      <h1>Direct Deploy (Netlify Build Hook)</h1>
+      <p>Triggers a production deploy for <code>study-in--japan.com</code> using your Netlify Build Hook.</p>
+      <button id="deploy">Deploy Now</button>
       <div class="status" id="status" aria-live="polite"></div>
       <div class="row">
         <div class="dot" id="dot"></div><div id="hint">Waiting…</div>
       </div>
-      <div class="meta">Workflow file: <code>/.github/workflows/manual-sync.yml</code></div>
+      <div class="meta">Function: <code>/.netlify/functions/deploy-now</code></div>
     </div>
     <script>
-      const go = document.getElementById('go');
+      const btn = document.getElementById('deploy');
       const status = document.getElementById('status');
       const dot = document.getElementById('dot');
       const hint = document.getElementById('hint');
 
-      async function trigger() {
-        go.disabled = true;
-        status.textContent = 'Triggering GitHub workflow…';
-        dot.classList.remove('on'); hint.textContent = 'Dispatching…';
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        status.textContent = 'Starting deploy…';
+        dot.classList.remove('on'); hint.textContent = 'Calling build hook…';
         try {
-          const res = await fetch('/.netlify/functions/trigger-sync', { method: 'POST' });
-          const data = await res.json();
+          const res = await fetch('/.netlify/functions/deploy-now', { method: 'POST' });
+          const data = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(data.error || res.statusText);
-          status.innerHTML = `Triggered! → <a target="_blank" rel="noreferrer" href="${data.workflow_url}">Open workflow runs</a>`;
-          dot.classList.add('on'); hint.textContent = 'Running in GitHub Actions';
+          status.textContent = 'Deploy triggered! Check Netlify → Deploys.';
+          dot.classList.add('on'); hint.textContent = 'Deploy running on Netlify';
         } catch (e) {
           status.textContent = 'Failed: ' + e.message;
           hint.textContent = 'Error';
         } finally {
-          go.disabled = false;
+          btn.disabled = false;
         }
-      }
-
-      go.addEventListener('click', trigger);
+      });
     </script>
   </body>
 </html>

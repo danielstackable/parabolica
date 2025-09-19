@@ -4,48 +4,82 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: manual-sync
+  cancel-in-progress: true
 
 jobs:
-  sync-and-push:
+  sync-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Use Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
-      - name: Build & run Parabolica sync
+      - name: Bubble → Files sync
         env:
-          # Per your project context
-          BUBBLE_BASE_URL: https://stackable.club/version-test/api/1.1/obj
-          # Add any other envs your script expects:
-          # PROJECT_MAP: study-in--japan.com,study-in--london.com
+          BUBBLE_BASE_URL: ${{ secrets.BUBBLE_BASE_URL || 'https://stackable.club/version-test/api/1.1/obj' }}
         run: |
           pnpm --filter scripts run build:sync
           pnpm --filter scripts run sync
 
-      - name: Commit changes (if any)
+      - name: Ensure public/ exists (Astro fallback)
         run: |
-          git config user.name "parabolica-bot"
-          git config user.email "parabolica-bot@users.noreply.github.com"
-          git add -A
-          if ! git diff --cached --quiet; then
-            git commit -m "chore(sync): generate Astro pages [skip ci]"
-            git push
-          else
-            echo "No changes to commit"
+          if [ ! -f "projects/study-in--japan/public/index.html" ]; then
+            echo "public/ missing — building workspace 'study-in--japan' and mirroring dist → public"
+            pnpm --filter "study-in--japan" run build
+            rsync -a --delete projects/study-in--japan/dist/ projects/study-in--japan/public/
           fi
+
+      - name: List a few generated files
+        run: |
+          set -e
+          echo "File count in public/:"
+          find projects/study-in--japan/public -type f | wc -l
+          echo "Sample:"
+          find projects/study-in--japan/public -type f | head -n 25
+
+      - name: Verify Netlify token and site id
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID_JAPAN: ${{ secrets.NETLIFY_SITE_ID_JAPAN }}
+        run: |
+          set -e
+          HTTP=$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer ${NETLIFY_AUTH_TOKEN}" \
+            "https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID_JAPAN}")
+          test "$HTTP" = "200" || (echo "Netlify API check failed (HTTP $HTTP)"; exit 1)
+          echo "Netlify API check OK"
+
+      - name: Install Netlify CLI
+        run: npm i -g netlify-cli
+
+      - name: Deploy to Netlify (prod)
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID_JAPAN: ${{ secrets.NETLIFY_SITE_ID_JAPAN }}
+        run: |
+          netlify deploy \
+            --auth "$NETLIFY_AUTH_TOKEN" \
+            --site "$NETLIFY_SITE_ID_JAPAN" \
+            --dir "projects/study-in--japan/public" \
+            --prod \
+            --message "control-panel direct deploy $GITHUB_SHA"
