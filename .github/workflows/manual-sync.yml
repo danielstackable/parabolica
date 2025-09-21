@@ -1,8 +1,7 @@
-# (paste the YAML above)
 name: Manual Astro Sync
 
 on:
-  workflow_dispatch: {}   # <- this line fixes the trigger
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -41,6 +40,7 @@ jobs:
         env:
           BUBBLE_BASE_URL: ${{ secrets.BUBBLE_BASE_URL }}
         run: |
+          # default if secret is missing
           : "${BUBBLE_BASE_URL:=https://stackable.club/version-test/api/1.1/obj}"
           pnpm --filter scripts run build:sync
           pnpm --filter scripts run sync
@@ -48,6 +48,7 @@ jobs:
       - name: Ensure public/ exists (Astro fallback)
         run: |
           if [ ! -f "projects/study-in--japan/public/index.html" ]; then
+            echo "public/ missing — building 'study-in--japan' and mirroring dist → public"
             pnpm --filter "study-in--japan" run build
             rsync -a --delete projects/study-in--japan/dist/ projects/study-in--japan/public/
           fi
@@ -57,7 +58,9 @@ jobs:
           COUNT=$(find projects/study-in--japan/public -type f | wc -l | tr -d ' ')
           echo "File count in public/: $COUNT"
           find projects/study-in--japan/public -type f | head -n 30
-          if [ "$COUNT" -le 0 ]; then echo "No files to deploy"; exit 1; fi
+          if [ "$COUNT" -le 0 ]; then
+            echo "No files to deploy"; exit 1
+          fi
 
       - name: Zip public/
         run: |
@@ -69,16 +72,12 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID_JAPAN: ${{ secrets.NETLIFY_SITE_ID_JAPAN }}
         run: |
-          test -n "$NETLIFY_AUTH_TOKEN" && test -n "$NETLIFY_SITE_ID_JAPAN" || { echo "Missing NETLIFY secrets"; exit 1; }
+          if [ -z "$NETLIFY_AUTH_TOKEN" ] || [ -z "$NETLIFY_SITE_ID_JAPAN" ]; then
+            echo "Missing NETLIFY_AUTH_TOKEN or NETLIFY_SITE_ID_JAPAN"; exit 1
+          fi
           RESP=$(curl -sS -X POST \
             -H "Authorization: Bearer ${NETLIFY_AUTH_TOKEN}" \
             -H "Content-Type: application/zip" \
             --data-binary "@${ROOT}/site.zip" \
             "https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID_JAPAN}/deploys")
-          echo "$RESP" | python3 - <<'PY'
-import sys, json
-d = json.load(sys.stdin)
-print("Deploy id:", d.get("id"))
-print("Deploy URL:", d.get("url") or d.get("ssl_url"))
-print("Admin deploy page:", d.get("admin_url"))
-PY
+          echo "$RESP"
