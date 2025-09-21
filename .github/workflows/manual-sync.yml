@@ -14,7 +14,6 @@ jobs:
   sync-and-deploy:
     runs-on: ubuntu-latest
     env:
-      # Required secrets in repo: NETLIFY_AUTH_TOKEN, NETLIFY_SITE_ID_JAPAN
       BUBBLE_BASE_URL: ${{ secrets.BUBBLE_BASE_URL || 'https://stackable.club/version-test/api/1.1/obj' }}
 
     steps:
@@ -35,7 +34,7 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
-      - name: Bubble → Files sync (writes static HTML into public/)
+      - name: Bubble → Files sync (prebuilt HTML → projects/study-in--japan/public)
         run: |
           pnpm --filter scripts run build:sync
           pnpm --filter scripts run sync
@@ -53,8 +52,8 @@ jobs:
           echo "Count:"; find projects/study-in--japan/public -type f | wc -l
           echo "Sample:"; find projects/study-in--japan/public -type f | head -n 25
 
-      # ---- DIRECT ZIP DEPLOY (no CLI, no project detection) ----
-      - name: Zip public/ for Netlify
+      # ---- DIRECT ZIP DEPLOY to Netlify (no CLI, no monorepo detection) ----
+      - name: Zip public/
         run: |
           cd projects/study-in--japan/public
           zip -qr "${GITHUB_WORKSPACE}/site.zip" .
