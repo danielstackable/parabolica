@@ -13,17 +13,18 @@ concurrency:
 jobs:
   sync-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      # Required secrets in repo: NETLIFY_AUTH_TOKEN, NETLIFY_SITE_ID_JAPAN
+      BUBBLE_BASE_URL: ${{ secrets.BUBBLE_BASE_URL || 'https://stackable.club/version-test/api/1.1/obj' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        with: { fetch-depth: 0 }
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
+        with: { version: 9 }
 
       - name: Use Node 20
         uses: actions/setup-node@v4
@@ -34,14 +35,12 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
-      - name: Bubble → Files sync
-        env:
-          BUBBLE_BASE_URL: ${{ secrets.BUBBLE_BASE_URL || 'https://stackable.club/version-test/api/1.1/obj' }}
+      - name: Bubble → Files sync (writes static HTML into public/)
         run: |
           pnpm --filter scripts run build:sync
           pnpm --filter scripts run sync
 
-      - name: Ensure public/ exists (Astro fallback)
+      - name: Ensure public/ exists (fallback to dist → public)
         run: |
           if [ ! -f "projects/study-in--japan/public/index.html" ]; then
             echo "public/ missing — building workspace 'study-in--japan' and mirroring dist → public"
@@ -49,37 +48,32 @@ jobs:
             rsync -a --delete projects/study-in--japan/dist/ projects/study-in--japan/public/
           fi
 
-      - name: List a few generated files
+      - name: Show sample of generated files
         run: |
-          set -e
-          echo "File count in public/:"
-          find projects/study-in--japan/public -type f | wc -l
-          echo "Sample:"
-          find projects/study-in--japan/public -type f | head -n 25
+          echo "Count:"; find projects/study-in--japan/public -type f | wc -l
+          echo "Sample:"; find projects/study-in--japan/public -type f | head -n 25
 
-      - name: Verify Netlify token and site id
+      # ---- DIRECT ZIP DEPLOY (no CLI, no project detection) ----
+      - name: Zip public/ for Netlify
+        run: |
+          cd projects/study-in--japan/public
+          zip -qr "${GITHUB_WORKSPACE}/site.zip" .
+
+      - name: Deploy ZIP to Netlify (production)
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID_JAPAN: ${{ secrets.NETLIFY_SITE_ID_JAPAN }}
         run: |
-          set -e
-          HTTP=$(curl -s -o /dev/null -w '%{http_code}' \
+          set -euo pipefail
+          RESP=$(curl -sS -X POST \
             -H "Authorization: Bearer ${NETLIFY_AUTH_TOKEN}" \
-            "https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID_JAPAN}")
-          test "$HTTP" = "200" || (echo "Netlify API check failed (HTTP $HTTP)"; exit 1)
-          echo "Netlify API check OK"
-
-      - name: Install Netlify CLI
-        run: npm i -g netlify-cli
-
-      - name: Deploy to Netlify (prod)
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID_JAPAN: ${{ secrets.NETLIFY_SITE_ID_JAPAN }}
-        run: |
-          netlify deploy \
-            --auth "$NETLIFY_AUTH_TOKEN" \
-            --site "$NETLIFY_SITE_ID_JAPAN" \
-            --dir "projects/study-in--japan/public" \
-            --prod \
-            --message "control-panel direct deploy $GITHUB_SHA"
+            -H "Content-Type: application/zip" \
+            --data-binary "@${GITHUB_WORKSPACE}/site.zip" \
+            "https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID_JAPAN}/deploys")
+          echo "$RESP" | python3 - <<'PY'
+import sys, json
+d = json.load(sys.stdin)
+print("Deploy id:", d.get("id"))
+print("Deploy URL:", d.get("url") or d.get("ssl_url"))
+print("Admin deploy page:", d.get("admin_url"))
+PY
