@@ -5,14 +5,14 @@
     <title>Parabolica — Deploy Now</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-      :root { --bg:#0b0b10; --card:#11121a; --fg:#e8e8f0; --accent:#7c5cff; }
+      :root { --bg:#0b0b10; --card:#11121a; --fg:#e8e8f0; --accent:#7c5cff; --muted:#9aa0b4; --ok:#2ecc71; --err:#ff5c7c; }
       html,body{height:100%}
       body {
         margin:0; background:radial-gradient(1200px 800px at 70% -10%, #1e1b31, #0b0b10);
-        color:var(--fg); font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        color:var(--fg); font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;
         display:grid; place-items:center;
       }
-      .card { background:var(--card); padding:2rem; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.35); width:min(520px, 92vw); }
+      .card { background:var(--card); padding:2rem; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.35); width:min(680px, 92vw); }
       h1 { margin:0 0 .75rem; font-size:1.25rem; letter-spacing:.3px; opacity:.9 }
       p { margin:.25rem 0 1.25rem; opacity:.8 }
       button {
@@ -20,52 +20,316 @@
         background:var(--accent); color:#fff; width:100%; font-size:1rem; transition:transform .05s ease, opacity .2s ease;
       }
       button:disabled { opacity:.6; cursor:not-allowed; transform:none; }
-      .row { display:flex; gap:.5rem; align-items:center; margin-top:1rem; }
-      .dot { width:10px; height:10px; border-radius:50%; background:#3a3a4d; }
-      .dot.on { background:#2ecc71; }
-      .status { margin-top:1rem; min-height:1.8em; font-size:.95rem; }
       a { color:#b5a7ff; text-decoration:underline; }
       .meta { margin-top:1.25rem; font-size:.85rem; opacity:.7 }
       .brand { display:flex; align-items:center; gap:.6rem; margin-bottom:1rem; opacity:.9 }
       .logo { width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg, #7c5cff, #00d4ff); }
       code { background:#1a1b26; padding:.1rem .35rem; border-radius:6px; }
+
+      /* Progress UI */
+      .prog-wrap { margin-top:1rem; }
+      .bar { position:relative; height:10px; background:#1a1b26; border-radius:999px; overflow:hidden; }
+      .fill { position:absolute; inset:0 auto 0 0; width:0%; background:linear-gradient(90deg, #7c5cff, #00d4ff); transition:width .4s ease; }
+      .pct { display:flex; gap:.6rem; align-items:center; margin:.35rem 2px 0; font-size:.85rem; color:var(--muted); }
+      .phase { font-weight:600; color:#dfe3f3 }
+      .pct .spacer { flex:1 }
+      .timer {
+        font-variant-numeric: tabular-nums;
+        font-weight:700; letter-spacing: .02em;
+        color:#eef2ff; background:#0f1120; border:1px solid #2a2d40;
+        padding:.25rem .5rem; border-radius:8px;
+      }
+
+      /* Compact “thinking” status stream — single-line horizontal scroller */
+      .stream-wrap {
+        margin-top:.75rem;
+        position:relative;
+        background:#0f1118;
+        border:1px solid #1c2030;
+        border-radius:10px;
+        padding:.6rem .75rem;
+      }
+
+      .stream {
+        display:flex;
+        gap:.35rem;
+        align-items:center;
+        white-space:nowrap;         /* keep one line */
+        overflow-x:auto;            /* horizontal scroll */
+        overflow-y:hidden;
+        scrollbar-width: thin;      /* FF */
+        -webkit-overflow-scrolling: touch;
+        /* fade edges like ChatGPT */
+        -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+                mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+      }
+
+      /* Optional: subtler scrollbar for WebKit */
+      .stream::-webkit-scrollbar{ height:6px }
+      .stream::-webkit-scrollbar-thumb{ background:#2a2f46; border-radius:6px }
+      .stream::-webkit-scrollbar-track{ background:transparent }
+
+      .chip {
+        display:inline-flex; align-items:center; gap:.4rem;
+        padding:.2rem .5rem; margin:.15rem .25rem .15rem 0;
+        border-radius:999px; background:#15182a; border:1px solid #24283b;
+        color:#e0e6ff; white-space:nowrap;
+      }
+      .chip .dot {
+        width:8px; height:8px; border-radius:50%; background:#58607a; flex:0 0 8px;
+      }
+      .chip.doing .dot { background:#7c5cff; box-shadow:0 0 0 4px rgba(124,92,255,0.15); }
+      .chip.done  { background:#0f1a14; border-color:#1e3b2b; color:#dff7ea }
+      .chip.done  .dot { background:var(--ok) }
+      .chip.err   { background:#1a1013; border-color:#3e1c26; color:#ffe6ec }
+      .chip.err .dot { background:var(--err) }
+      .chip .name { font-weight:600 }
+      .chip .hint { opacity:.8 }
+
+      /* animated dots like “thinking…” */
+      .dots::after {
+        content:""; display:inline-block; width:1.2em; text-align:left;
+        animation: ellipses 1.2s steps(4,end) infinite;
+      }
+      @keyframes ellipses {
+        0% { content:""; }
+        25% { content:"."; }
+        50% { content:".."; }
+        75% { content:"..."; }
+        100% { content:""; }
+      }
+
+      .summary { margin-top:1rem; padding:.75rem; background:#0f111a; border:1px solid #1d2030; border-radius:10px; display:none; }
+      .summary.ok { border-color:#204a33; }
+      .summary.err { border-color:#4a2030; }
+
+      /* tiny status row */
+      .row { display:flex; gap:.5rem; align-items:center; margin-top:.6rem; font-size:.9rem; opacity:.85 }
+      .row .led { width:10px; height:10px; border-radius:50%; background:#3a3a4d; }
+      .row .led.on { background:var(--ok) }
     </style>
   </head>
   <body>
     <div class="card">
       <div class="brand"><div class="logo"></div><strong>Parabolica Control Panel</strong></div>
-      <h1>Direct Deploy (Netlify Build Hook)</h1>
-      <p>Triggers a production deploy for <code>study-in--japan.com</code> using your Netlify Build Hook.</p>
+      <h1>Direct Deploy (GitHub → Netlify)</h1>
+      <p>Runs <code>Manual Astro Sync</code> and deploys <code>study-in--japan.com</code>. Status is shown as compact “thinking” chips.</p>
+
       <button id="deploy">Deploy Now</button>
-      <div class="status" id="status" aria-live="polite"></div>
-      <div class="row">
-        <div class="dot" id="dot"></div><div id="hint">Waiting…</div>
+
+      <div class="prog-wrap">
+        <div class="bar" aria-label="Deployment progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="fill" id="fill"></div>
+        </div>
+        <div class="pct">
+          <span class="phase" id="phase">Idle</span>
+          <span class="spacer"></span>
+          <span id="timer" class="timer" title="Elapsed time">00:00.00</span>
+          <span id="percent">0%</span>
+        </div>
       </div>
-      <div class="meta">Function: <code>/.netlify/functions/deploy-now</code></div>
+
+      <div class="stream-wrap">
+        <div id="stream" class="stream" role="status" aria-live="polite"></div>
+      </div>
+
+      <div class="row">
+        <div class="led" id="led"></div>
+        <div id="linkline"></div>
+      </div>
+
+      <div class="summary" id="summary"></div>
+      <div class="meta">Functions: <code>/.netlify/functions/deploy-now</code> & <code>/.netlify/functions/gh-status</code></div>
     </div>
+
     <script>
       const btn = document.getElementById('deploy');
-      const status = document.getElementById('status');
-      const dot = document.getElementById('dot');
-      const hint = document.getElementById('hint');
+      const fill = document.getElementById('fill');
+      const percent = document.getElementById('percent');
+      const phase = document.getElementById('phase');
+      const stream = document.getElementById('stream');
+      const linkline = document.getElementById('linkline');
+      const led = document.getElementById('led');
+      const summary = document.getElementById('summary');
+      const bar = document.querySelector('.bar');
+      const timerEl = document.getElementById('timer');
 
-      btn.addEventListener('click', async () => {
+      let pollTimer = null;
+      let currentRunId = null;
+
+      // TIMER (hundredths)
+      let startTs = 0, rafId = null;
+      function formatTime(ms) {
+        const csTotal = Math.floor(ms / 10);
+        const cs = csTotal % 100;
+        const secTotal = Math.floor(csTotal / 100);
+        const s = secTotal % 60;
+        const m = Math.floor(secTotal / 60);
+        return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(cs).padStart(2,'0')}`;
+      }
+      function tick() { timerEl.textContent = formatTime(Date.now() - startTs); rafId = requestAnimationFrame(tick); }
+      function startTimer() { cancelAnimationFrame(rafId); startTs = Date.now(); rafId = requestAnimationFrame(tick); }
+      function stopTimer() { if (rafId) cancelAnimationFrame(rafId); rafId = null; }
+      function resetTimer() { stopTimer(); timerEl.textContent = '00:00.00'; }
+
+      function setProgress(pct, text) {
+        pct = Math.max(0, Math.min(100, Math.round(pct)));
+        fill.style.width = pct + '%';
+        percent.textContent = pct + '%';
+        bar.setAttribute('aria-valuenow', String(pct));
+        if (text) phase.textContent = text;
+      }
+
+      function resetUI() {
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = null; currentRunId = null;
+        btn.disabled = false;
+        setProgress(0, 'Idle');
+        stream.innerHTML = '';
+        linkline.innerHTML = 'Waiting…';
+        led.classList.remove('on');
+        summary.style.display = 'none';
+        summary.className = 'summary';
+        resetTimer();
+      }
+
+      function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+      function cssSafe(s){ return String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-'); }
+
+      // Render compact chips from steps (1–2 lines, clamped by CSS)
+      function renderChips(steps) {
+        const html = steps.map(step => {
+          const status = step.status;               // queued | in_progress | completed
+          const concl = step.conclusion;            // success | failure | cancelled | skipped | null
+          let cls = 'chip';
+          if (status === 'in_progress') cls += ' doing';
+          if (status === 'completed')  cls += (concl === 'success' || concl === 'skipped') ? ' done' : ' err';
+          const name = esc(step.name);
+        return `<span class="${cls}" id="chip-${cssSafe(step.name)}">
+                  <span class="dot"></span>
+                  <span class="name">${name}</span>
+                  ${status === 'in_progress' ? '<span class="hint dots"></span>' : ''}
+                </span>`;
+        }).join('');
+        stream.innerHTML = html;
+        scrollActiveChipIntoView();
+      }
+
+      function scrollActiveChipIntoView() {
+          // Prefer the "doing" chip, fallback to the last chip
+          const active = stream.querySelector('.chip.doing') || stream.querySelector('.chip:last-child');
+          if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'end', block: 'nearest' });
+        }
+
+        // Make vertical wheel gestures scroll horizontally (nice on trackpads)
+        stream.addEventListener('wheel', (e) => {
+          if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+            stream.scrollLeft += e.deltaY;
+            e.preventDefault();
+          }
+        }, { passive: false });
+
+      function computePercentFromSteps(steps) {
+        if (!steps || steps.length === 0) return 5;
+        const total = steps.length;
+        const done = steps.filter(s => s.status === 'completed' && (s.conclusion === 'success' || s.conclusion === 'skipped')).length;
+        const doing = steps.some(s => s.status === 'in_progress') ? 1 : 0;
+        const pct = Math.floor(((done + 0.5 * doing) / total) * 100);
+        return Math.max(5, Math.min(100, pct));
+      }
+
+      async function pollRun(runId, workflowUrl) {
+        if (pollTimer) clearInterval(pollTimer);
+
+        pollTimer = setInterval(async () => {
+          try {
+            const r = await fetch(`/.netlify/functions/gh-status?run_id=${encodeURIComponent(runId)}`);
+            if (!r.ok) throw new Error(`status ${r.status}`);
+            const data = await r.json();
+            const job = data.job;
+            const run = data.run;
+
+            if (workflowUrl && !linkline.innerHTML.includes('View build')) {
+              linkline.innerHTML = `Tracking build → <a target="_blank" rel="noreferrer" href="${workflowUrl}">View build</a>`;
+            }
+
+            if (job && Array.isArray(job.steps)) {
+              renderChips(job.steps);
+              const pct = computePercentFromSteps(job.steps);
+              const current = job.steps.find(s => s.status === 'in_progress');
+              setProgress(pct, current ? current.name : (pct >= 100 ? 'Completed' : 'Queued…'));
+            }
+
+            if (run.status === 'queued' || run.status === 'in_progress') {
+              led.classList.add('on');
+              return; // keep polling
+            }
+
+            // completed
+            clearInterval(pollTimer); pollTimer = null;
+            stopTimer();
+            const finalElapsed = timerEl.textContent;
+
+            if (run.conclusion === 'success') {
+              setProgress(100, 'Completed');
+              summary.classList.add('ok'); summary.style.display = 'block';
+              summary.innerHTML = `<strong>Deployment kicked off successfully</strong> 🎉<br/>Total time: <code>${finalElapsed}</code>.`;
+            } else {
+              setProgress(100, 'Failed');
+              summary.classList.add('err'); summary.style.display = 'block';
+              summary.innerHTML = `<strong>Workflow finished with: ${esc(run.conclusion || 'unknown')}</strong><br/>Elapsed: <code>${finalElapsed}</code>.`;
+            }
+          } catch (e) {
+            // transient; keep polling
+            console.error(e);
+          }
+        }, 2000);
+      }
+
+      document.getElementById('deploy').addEventListener('click', async () => {
+        resetUI();
         btn.disabled = true;
-        status.textContent = 'Starting deploy…';
-        dot.classList.remove('on'); hint.textContent = 'Calling build hook…';
+
         try {
+          setProgress(3, 'Dispatching…');
+          startTimer();
+
           const res = await fetch('/.netlify/functions/deploy-now', { method: 'POST' });
           const data = await res.json().catch(() => ({}));
-          if (!res.ok) throw new Error(data.error || res.statusText);
-          status.textContent = 'Deploy triggered! Check Netlify → Deploys.';
-          dot.classList.add('on'); hint.textContent = 'Deploy running on Netlify';
+
+          if (!res.ok || !data.ok) throw new Error(data.error || res.statusText || 'Deploy function failed');
+
+          led.classList.add('on');
+          linkline.innerHTML = `Workflow dispatched → <a target="_blank" rel="noreferrer" href="${data.workflow_url}">Workflows</a>`;
+          setProgress(10, 'Queued…');
+
+          // Show initial chips to reduce “empty” state
+          stream.innerHTML = `
+            <span class="chip doing"><span class="dot"></span><span class="name">Checkout</span><span class="hint dots"></span></span>
+            <span class="chip"><span class="dot"></span><span class="name">Install deps</span></span>
+            <span class="chip"><span class="dot"></span><span class="name">Sync</span></span>
+            <span class="chip"><span class="dot"></span><span class="name">Preflight</span></span>
+            <span class="chip"><span class="dot"></span><span class="name">Deploy</span></span>
+          `;
+
+          if (data.run_id) {
+            currentRunId = data.run_id;
+            pollRun(currentRunId, data.workflow_url);
+          } else {
+            setProgress(15, 'Waiting for runner…');
+          }
         } catch (e) {
-          status.textContent = 'Failed: ' + e.message;
-          hint.textContent = 'Error';
+          stopTimer();
+          setProgress(100, 'Failed');
+          summary.classList.add('err'); summary.style.display = 'block';
+          summary.innerHTML = `<strong>Deploy failed to start.</strong><br/>${String(e.message || e)}<br/>Elapsed: <code>${timerEl.textContent}</code>.`;
         } finally {
           btn.disabled = false;
         }
       });
+
+      // init
+      resetUI();
     </script>
   </body>
 </html>

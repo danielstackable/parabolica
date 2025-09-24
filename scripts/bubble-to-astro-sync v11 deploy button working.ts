@@ -95,19 +95,6 @@ function safeJsonLd(obj: unknown) {
     .replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029")
     .replace(/<\/script/gi, "<\\/script>");
 }
-/* Footer (shared) */
-function renderFooter() {
-  const year = new Date().getFullYear();
-  return `
-<footer>
-  <p style="font-size: 0.9em; color: #777;">
-    © ${year} InterFrontera Ltd. (UK). This site is not affiliated with JASSO, MEXT, or any official Japanese agency.
-    All program data is sourced from public university websites and linked back to the original source where available.
-    <br>
-    Questions or corrections? Email us at <a href="mailto:admin@interfrontera.com">admin@interfrontera.com</a>
-  </p>
-</footer>`;
-}
 
 /* 3. Bubble Fetchers */
 async function fetchAllPrograms(): Promise<StackProgram[]> {
@@ -258,8 +245,6 @@ function renderProgramPage(program: StackProgram): string {
     <p>${escapeHtml(provider.Provider_description ?? "")}</p>
     <p><strong>Slug:</strong> ${escapeHtml(provider.Provider_slug)}</p>
     <p><strong>Canonical Domains:</strong> ${escapeHtml(canonicalDomains)}</p>
-
-    ${renderFooter()}
   </body>
 </html>`;
 }
@@ -334,8 +319,6 @@ function renderProviderPage(provider: StackProvider, programsForProvider: StackP
     <ul>
 ${programLis}
     </ul>
-
-    ${renderFooter()}
   </body>
 </html>`;
 }
@@ -405,8 +388,6 @@ ${programItemsHtml}
     <ul>
 ${providerItemsHtml}
     </ul>
-
-    ${renderFooter()}
   </body>
 </html>`;
 }
