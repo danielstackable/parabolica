@@ -377,51 +377,9 @@ function renderIndexPage(programs: StackProgram[], providers: StackProvider[], d
     item: { "@type": "CollegeOrUniversity", name: prov.Provider_name, url: `${siteUrl}${prov.Provider_slug}/` }
   }));
 
-  // —— Publisher (Organization) and WebPage w/ publisher ——
-  const orgId = `${siteUrl}#publisher`;
-  const pageMeta =
-    domain.includes("japan")
-      ? {
-          name: "Study in Japan (English-taught Programs)",
-          description:
-            "Explore English-taught undergraduate programs at top Japanese universities. Built by InterFrontera Ltd., an independent education company based in the UK."
-        }
-      : {
-          name: "Study in London (Programs & Providers)",
-          description:
-            "Explore undergraduate programs and providers featured on study-in--london.com. Built by InterFrontera Ltd., an independent education company based in the UK."
-        };
-
   const schema = [
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "@id": orgId,
-      "name": "InterFrontera Ltd.",
-      "url": "https://interfrontera.com",
-      "logo": { "@type": "ImageObject", "url": "https://interfrontera.com/assets/logo-600x200.png" },
-      "email": "admin@interfrontera.com"
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "name": pageMeta.name,
-      "description": pageMeta.description,
-      "url": siteUrl,
-      "publisher": { "@id": orgId }
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "url": siteUrl,
-      "name": domain,
-      "publisher": { "@id": orgId },
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": `${siteUrl}?q={search_term_string}`,
-        "query-input": "required name=search_term_string"
-      }
-    },
+    { "@context": "https://schema.org", "@type": "WebSite", url: siteUrl, name: domain,
+      potentialAction: { "@type": "SearchAction", target: `${siteUrl}?q={search_term_string}`, "query-input": "required name=search_term_string" } },
     { "@context": "https://schema.org", "@type": "ItemList", name: "Programs",  itemListElement: programList },
     { "@context": "https://schema.org", "@type": "ItemList", name: "Providers", itemListElement: providerList }
   ];
@@ -464,13 +422,8 @@ ${providerItemsHtml}
   const providersByDomain: Record<string, StackProvider[]> = {};
 
   for (const program of programs) {
-    const providerId = typeof program.Program_provider === "string"
-      ? program.Program_provider
-      : (program.Program_provider as StackProvider)._id;
-
-    const provider = allProviders.find((p) => p._id === providerId);
+    const provider = allProviders.find((p) => p._id === (typeof program.Program_provider === "string" ? program.Program_provider : program.Program_provider._id));
     if (!provider) continue;
-
     program.Program_provider = provider;
 
     // Hydrate program fields
@@ -496,13 +449,8 @@ ${providerItemsHtml}
         } else if (isBubbleIdLike(rawCur)) {
           const currencyObj = await fetchCurrency(rawCur);
           setCurrencyOnOffer(offer, currencyObj ?? rawCur);
-          if (currencyObj) {
-            console.log(
-              `💱 Hydrated currency for offer ${offer._id}: ${currencyObj.Code ?? currencyObj.Name ?? currencyObj.Country ?? currencyObj._id}`
-            );
-          } else {
-            console.warn(`⚠️ Currency not found for id: ${rawCur} (offer ${offer._id})`);
-          }
+          if (currencyObj) console.log(`💱 Hydrated currency for offer ${offer._id}: ${currencyObj.Code ?? currencyObj.Name ?? currencyObj.Country ?? currencyObj._id}`);
+          else console.warn(`⚠️ Currency not found for id: ${rawCur} (offer ${offer._id})`);
         } else {
           setCurrencyOnOffer(offer, rawCur);
         }
@@ -548,10 +496,8 @@ ${providerItemsHtml}
     if (!projectPath) continue;
 
     // Site index
-    writeFile(
-      path.join("projects", projectPath, "public", "index.html"),
-      renderIndexPage(programsForDomain, providersForDomain, domain)
-    );
+    writeFile(path.join("projects", projectPath, "public", "index.html"),
+              renderIndexPage(programsForDomain, providersForDomain, domain));
 
     // Group programs by provider
     const byProviderSlug = new Map<string, StackProgram[]>();
