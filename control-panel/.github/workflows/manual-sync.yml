@@ -1,0 +1,40 @@
+name: Manual Astro Sync
+on:
+  workflow_dispatch:
+
+jobs:
+  sync_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - run: pnpm install --no-frozen-lockfile
+
+      - name: Build sync script
+        run: pnpm --filter scripts run build:sync
+
+      - name: Run sync (writes HTML to public/)
+        run: pnpm --filter scripts run sync
+
+      - name: Generate sitemaps & robots
+        run: node scripts/generate-sitemaps.js
+
+      - name: Deploy JP (Netlify)
+        run: npx netlify deploy --prod --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID_JP }}" --dir projects/study-in--japan/public --message "GH Actions deploy JP"
+
+      - name: Deploy LDN (Netlify)
+        run: npx netlify deploy --prod --auth "${{ secrets.NETLIFY_AUTH_TOKEN }}" --site "${{ secrets.NETLIFY_SITE_ID_LDN }}" --dir projects/study-in--london/public --message "GH Actions deploy LDN"
+
+      - name: Ping Bing
+        run: |
+          curl -sS "https://www.bing.com/ping?sitemap=https://study-in--japan.com/sitemap.xml" || true
+          curl -sS "https://www.bing.com/ping?sitemap=https://study-in--london.com/sitemap.xml" || true
